@@ -13,8 +13,6 @@ Password generation is based on a website URL/domain, a secure master password h
 
 The classic model for information security defines three objectives of security: **maintaining confidentiality, integrity, and availability**. We describe suitable measures to maintain these security properties and how we implemented them.
 
-****
-
 ***Confidentiality*** refers to protecting sensitive data from being accessed by unauthorized parties. Implemented *Measures*:
 
 * Never send a password or it’s hash over the network
@@ -26,8 +24,6 @@ The classic model for information security defines three objectives of security:
   (1) password field with master password → generate secure `master–password–hash` (see [argon2-online](https://antelle.net/argon2-browser))
   (2) get template for password generation by this `master–password–hash` (public available with attributes lengths / version / variations of characters)
 
----
-
 ***Integrity*** refers to ensuring the authenticity/genuine of the program, i.e. the source code is not modified and can be proven by an ordinary software developer. Implemented *Measures*:
 
 * Follow the open source principles, e.g. well documented, easily readable  source code that an ordinary software developer can understand and prove.
@@ -35,8 +31,6 @@ The classic model for information security defines three objectives of security:
 * Use secure password hash algorithm (correctness can be checked easily: cli → generate the argon2 / bcrypt of testKey, generate it with another program and compare the results)
 
 *known Problems*: Keylogger; Javascript / Browser vulnerability
-
-------
 
 ***Availability*** means that information is accessible by authorized users. Implemented *Measures*:
 
