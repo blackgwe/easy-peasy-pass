@@ -11,7 +11,19 @@ Many Internet services are based on password authentication. Currently available
 
 Password generation is based on a website URL/domain, a secure master password hash and some other parameters such as lengths/variations of characters stored in publicly available templates. The generated password and its hash are never stored and never sent over the network (only the master password hash and related templates are stored).
 
-The classic model for information security defines three objectives of security: **confidentiality, integrity, and availability**. We describe suitable measures to maintain these security properties and how we implemented them.
+The classic model for information security defines three objectives of security: **confidentiality, integrity, and availability**. We describe suitable measures to maintain these security properties and how we implemented them in the section [Thoughts on Security](#thoughts-on-security).
+
+## Implementation details & features
+
+***Dead simple***. No software dependency, no dependency on external service — no network transport, no storage — no backup (except the master password in the bank safe), proven security password hash algorithms
+
+***Meet password requirements***. The generation of the passwords relies on attributes like password length or special characters hold in generation templates.
+
+***Password versioning***. If it is necessary to change a compromised password, simply increment the version of the password generation template.
+
+***Password sharing***. If a password is used by a group of people, the secure password hash has to be derived from the secret hashes of the users (intermediate layer)
+
+## Thoughts on Security
 
 ***Confidentiality*** refers to protecting sensitive data from being accessed by unauthorized parties. Implemented *Measures*:
 
@@ -30,7 +42,7 @@ The classic model for information security defines three objectives of security:
 * Hash the source code and publish the hash
 * Use secure password hash algorithm (correctness can be checked easily: cli → generate the argon2 / bcrypt of testKey, generate it with another program and compare the results)
 
-*known Problems*: Keylogger; Javascript / Browser vulnerability
+*Known problems*: Keylogger; Javascript / Browser vulnerability
 
 ***Availability*** means that information is accessible by authorized users. Implemented *Measures*:
 
@@ -39,6 +51,8 @@ The classic model for information security defines three objectives of security:
   * Internet connection not required to generate a password
 * Revoking passwords separately 
   → Versioned password generation templates
+
+*Known problems*: Forgetting the master password (should not happen because it is always used)
 
 ## Conclusions
 
