@@ -68,3 +68,7 @@ tbd
 ## Acknowledgements
 
 Tbd
+
+## License
+
+Aurelia is MIT licensed. You can find out more and read the license document [here](https://github.com/aurelia/aurelia/blob/master/LICENSE).
