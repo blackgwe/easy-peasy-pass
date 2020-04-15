@@ -11,7 +11,7 @@ Many Internet services are based on password authentication. Currently available
 
 Password generation is based on a website URL/domain, a secure master password hash and some other parameters such as lengths/variations of characters stored in publicly available templates. The generated password and its hash are never stored and never sent over the network (only the master password hash and related templates are stored).
 
-The classic model for information security defines three objectives of security: **maintaining confidentiality, integrity, and availability**. We describe suitable measures to maintain these security properties and how we implemented them.
+The classic model for information security defines three objectives of security: **confidentiality, integrity, and availability**. We describe suitable measures to maintain these security properties and how we implemented them.
 
 ***Confidentiality*** refers to protecting sensitive data from being accessed by unauthorized parties. Implemented *Measures*:
 
