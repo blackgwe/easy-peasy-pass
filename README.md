@@ -23,9 +23,9 @@ The classic model for information security defines three objectives of security:
 
 * Never send a password or it’s hash over the network
 
-* Simplicity / Transparency of the source code —> easy to prove
+* Simplicity / Transparency of the source code → easy to prove
 
-* reproducible correctness of the secure password hash algorithm (cli => generate the argon2 / bcrypt of testKey, generate it with another program and compare the results)
+* reproducible correctness of the secure password hash algorithm (cli → generate the argon2 / bcrypt of testKey, generate it with another program and compare the results)
 
 * Don’t use the clipboard
 
