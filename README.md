@@ -7,6 +7,7 @@ Many Internet services are based on password authentication. Currently available
 # Related Work
 
 * https://masterpassx.org/
+* https://www.security-insider.de/password-manager-nein-danke-a-689795/
 
 # Approach
 
@@ -66,4 +67,4 @@ tbd
 
 # Acknowledgements
 
-tbd
+Tbd
