@@ -27,8 +27,8 @@ The classic model for information security defines three objectives of security:
 * Don’t use the clipboard
 * Generate password and set it to the password field only for authorized users (master password).
   Example: 
-  (1) password field with master password → generate secure `master password hash` (see [argon2-online](https://antelle.net/argon2-browser))
-  (2) get `password generation template` by this `master password hash` (public available with attributes lengths/variations of characters/version)
+  (1) password field with master password → generate secure `master–password–hash` (see [argon2-online](https://antelle.net/argon2-browser))
+  (2) get template for password generation by this `master–password–hash` (public available with attributes lengths/variations of characters/version)
 
 ### Integrity
 
