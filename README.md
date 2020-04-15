@@ -1,4 +1,4 @@
-# Password Generator
+# Simple Password Generator
 
 Many Internet services are based on password authentication. Currently available password managers do not meet my security requirements. This software is **ABSOLUTELY NOT**  designed to manage highly sensitive passwords for financial services, health services etc, but it is supposed to implement elementary security properties better than other password managers.
 
@@ -56,4 +56,4 @@ Tbd
 
 ## License
 
-Aurelia is MIT licensed. You can find out more and read the license document [here](https://github.com/aurelia/aurelia/blob/master/LICENSE).
+Simple Password Generator is MIT licensed. You can find out more and read the license document [here](https://github.com/aurelia/aurelia/blob/master/LICENSE).
