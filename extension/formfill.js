@@ -1,3 +1,13 @@
+/**
+ {
+  "user":"gabriel",
+   "template": {
+      "length": 32,
+      "correct": "dGVzdDU1"
+    }
+}
+ */
+
 (function() {
   let
     form = document.activeElement.closest('form'),
@@ -22,10 +32,20 @@
     if (userInput) {
       userInput.value = 'user';
       if (btn) {
-        btn.click();
+        // btn.click();
       }
     }
   }
 
+  chrome.storage.local.get('settings', function(keyValue) {
+    alert('yeap');
+    if (keyValue.settings) {
+      const options = JSON.parse(keyValue.settings);
+      alert('yeap' + options.user);
+      alert('yeap' + options.template.length);
+    } else {
+      alert('hmmm');
+    }
+  });
 })();
 
