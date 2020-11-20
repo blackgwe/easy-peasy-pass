@@ -1,8 +1,8 @@
 chrome = chrome || {};
 chrome.tabs = chrome.tabs || {};
-chrome.tabs.getSelected = chrome.tabs.getSelected || (() => console.error('easyPeasyPass is a chrome extension'));
+chrome.tabs.getSelected = chrome.tabs.getSelected || (() => console.error('e@syPe@syP@ss is a chrome extension'));
 chrome.runtime = chrome.runtime || {};
-chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error('easyPeasyPass is a chrome extension'));
+chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error('e@syPe@syP@ss is a chrome extension'));
 
 (() => {
     // ensure access to chrome/easyPeasyAuth functions (will be set to null at the end of this script)
