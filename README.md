@@ -1,4 +1,5 @@
-# Easy-Peasy Password Security Enhancer (e@syPe@syP@ss)
+# Easy-Peasy Password (e@syPe@syP@ss)
+**Dead simple tool for deriving complex credentials using PBKDF2**
 
 This software is **ABSOLUTELY NOT**  designed to manage highly sensitive passwords for financial services, 
 health services etc, but it is supposed to implement elementary security properties better than current 
