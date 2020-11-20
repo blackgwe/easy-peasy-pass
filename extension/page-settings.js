@@ -114,11 +114,8 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
 
     // Derivation of a common shared secret for importing / exporting encrypted credentials depending on input.selectImport
     async function getSharedSecret(selectElement) {
-        const
-            transfer = await sendMessage({'action': 'get-transfer-settings'}),
-            idx = selectElement.value;
-
-
+        const transfer = await sendMessage({'action': 'get-transfer-settings'});
+        const idx = selectElement.value;
         return idx < 0
             ? await getMySecretBlocks(master, false, 'SHARED_SECRET') // long secret derived from master key
             : await getMySecretBlocks(master, true, transfer[idx].name); // short secret derived from master key + the transfer name
@@ -234,6 +231,9 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
         if (settings.script) {
             exportValue.script = settings.script
         }
+        if (settings.template) {
+            exportValue.template = settings.template
+        }
         // step 2: symmetric encrypt
         const encryptData = async (obj, secret) => {
             for (let prop in obj) {
@@ -252,7 +252,7 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
         const decryptData = async (obj, secret) => {
             for (let prop in obj) {
                 if (obj.hasOwnProperty(prop)) {
-                    if (prop.match(/^(site|pass|user|script)/)) {
+                    if (prop.match(/^(site|pass|user|script|template)/)) {
                         obj[prop] = await decrypt(secret, obj[prop]);
                     } else if (typeof obj[prop] === 'object') {
                         await decryptData(obj[prop], secret);
@@ -270,6 +270,7 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
         input.siteSecret.value = '';
         input.targetUser.value = importValue.user ?? '';
         input.targetPass.value = importValue.pass ?? '';
+        input.selectTemplate.value = importValue.template ?? '';
         state = INITIAL_STATE_EDIT;
         state.siteSettings = {site: site};
         state.changed = true;
