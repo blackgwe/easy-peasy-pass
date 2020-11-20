@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" charset="UTF-8">
+<head>
+    <meta charset="utf-8"/>
+    <script src="lib/crypto.js" charset="UTF-8"></script>
+    <title>e@syPe@syP@ass DUMP</title>
+    <style>
+        label, legend, fieldset {
+            display: block;
+            margin-top: 1rem;
+            margin-bottom: .3rem;
+        }
+        section {
+            margin: 1rem;
+        }
+        .mt {
+            margin-top: 1rem
+        }
+    </style>
+</head>
+
+<body>
+
+<section>
+    <div>
+        <div class="mt">
+            <label for="import-text">Import text</label>
+            <textarea rows="20" cols="120" id="import-text">
+[
+    {
+        "site": "Ot/4kLF+xs1va4NGq/dxC5+EClX8lu4K",
+        "user": "Jt/il5Qkx9s8LkLIATDKF78aHvSzvFCLrmHG7Q==",
+        "pass": "H8PCAVb8wdotdHHg+pr9U4HApFECEpFmTGWmSf9TwaKoew=="
+    },
+    {
+        "site": "Ot/4kLF+xs1va4NGq/dxC5+EClX8lu4K",
+        "user": "P9vpo7kl0dwtckzB54ekB5aycOvpZV4uKysp8OZeFYmR",
+        "pass": "H8PCAVb8wdotdHHg+pr9U4HApFECEpFmTGWmSf9TwaKoew==",
+        "script": "M9b0kaB4hcAtbE3PqZ7lEZ/AS4c1VP9V+NdlgvJU+SDs1hMF"
+    }
+]</textarea>
+
+        </div>
+        <div>
+            <label for="maser-user">Master User</label>
+            <input type="password" value="" id="master-user"><br>
+        </div>
+        <div>
+            <label for="master-secret">Master Password</label>
+            <input type="password" value="m@sterP@ssw0rd" id="master-secret"><br>
+        </div>
+    </div>
+    <div>
+        <label for="decrypt"></label>
+        <button id="decrypt">Decrypt</button>
+    </div>
+
+    <hr>
+
+    <div>
+        <label for="plain">Plain Credentials</label>
+        <textarea disabled="disabled" rows="20" cols="120" id="plain"></textarea>
+    </div>
+
+</section>
+
+<script>
+    async function decryptData(obj, secret) {
+        for (let prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                if (prop.match(/^(site|pass|user|script)/)) {
+                    obj[prop] = await easyPeasyAuth.decrypt(secret, obj[prop]);
+                } else if (typeof obj[prop] === 'object') {
+                    await decryptData(obj[prop], secret);
+                }
+            }
+        }
+    }
+
+    document.getElementById('decrypt').addEventListener('click', async () => {
+        const
+            start = new Date(),
+            secret = document.getElementById('master-user').value + document.getElementById('master-secret').value,
+            importValue = JSON.parse(document.getElementById('import-text').value);
+
+        await easyPeasyAuth.setSecret(secret)
+        const derivedPass = await easyPeasyAuth.getDerivedPass();
+
+        await decryptData(importValue, await easyPeasyAuth.getMySecretBlocks(derivedPass, false, 'SHARED_SECRET'));
+        document.getElementById('plain').value = JSON.stringify(importValue, null, 4);
+
+        alert(`duration: ${new Date() - start}ms`);
+    });
+</script>
+
+</body>
+</html>
+
+<!--
+[
+    {
+        "user": "test@test.ch",
+        "pass": "MyS€cretP@ssw0rd",
+        "site": "heise.de"
+    },
+    {
+        "user": "max@mustermann.de",
+        "pass": "MyS€cretP@ssw0rd",
+        "site": "heise.de",
+        "script": "alert('hello world')"
+    }
+]
+-->
