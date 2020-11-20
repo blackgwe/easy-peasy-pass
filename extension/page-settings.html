@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="page-settings.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <script src="lib/crypto.js" charset="UTF-8"></script>
+    <title>e@syPe@syP@ass</title>
+</head>
+<body>
+
+<p>Optional Settings for <span id="site"></span></p>
+
+<section id="show-settings">
+    <div class="settings">
+        <div style="min-width: 16rem; margin-top: 1rem">
+            <label for="site-secret-x1">Your Site Password</label>
+            <input id="site-secret-x1" type="password">
+        </div>
+    </div>
+
+    <label for="settings-x1"></label>
+    <textarea id="settings-x1" rows="10" cols="120"></textarea>
+
+</section>
+
+<section id="site-section">
+
+    <label for="select-template"></label>
+    <select id="select-template">
+        <option value="8×lowerCaseNum">8 lower case letters and numbers</option>
+        <option value="12×lowerCaseNum">12 lower case letters and numbers</option>
+        <option value="8×simplest">8 characters, including numbers & few common special chars</option>
+        <option value="8×simple">8 characters, including numbers & few extraordinary chars</option>
+        <option value="12×simple">12 characters, including numbers & few extraordinary chars</option>
+        <option selected value="24×simple">24 characters, including numbers & few extraordinary chars</option>
+        <option value="12×strong">12 characters, including some extraordinary ones</option>
+        <option value="12×strongest">12 characters, including very rare ones</option>
+        <option value="24×strongest">24 characters, including very rare ones</option>
+    </select>
+
+    <hr>
+    <div class="settings">
+        <div style="min-width: 16rem; margin-top: 1rem">
+            <label for="site-secret">Your Site Password</label>
+            <input type="password" data-pass="1" id="site-secret"><br>
+        </div>
+        <div id="div-mapping" style="min-width: 16rem">
+            Mapping to given
+            <label id="label-target-user" for="site-target-user">Target User</label>
+            <input type="password" data-pass="1" id="site-target-user"><br>
+            <label id="label-target-pass" for="site-target-pass">Target Password</label>
+            <input type="password" data-pass="1" id="site-target-pass"><br>
+        </div>
+    </div>
+
+    <div>
+    <label for="display-pwd">Show passwords</label>
+    <input id="display-pwd" type="checkbox">
+    </div>
+
+    <hr>
+    <label for="settings"></label>
+    <textarea rows="10" cols="120" id="settings"></textarea>
+</section>
+
+<div id="div-export" class="d-none">
+    <label for="select-export">Export to</label>
+    <select id="select-export">
+        <option value="-1">Backup</option>
+    </select>
+    <button id="btn-export">Encrypt & Export</button>
+    <hr>
+</div>
+
+<div id="div-import" class="d-none">
+    <label for="select-import">Import from</label>
+    <select id="select-import">
+        <option value="-1">Backup</option>
+    </select>
+    <button id="btn-import">Decrypt & Import</button>
+    <hr>
+</div>
+
+<button id="btn-create">New</button>
+<button class="d-none" id="btn-cancel">Cancel</button>
+<button class="d-none" id="btn-save">Save to device</button>
+<button class="d-none" id="btn-remove-site-pass">Remove from device</button>
+
+<p>
+    <span id="success-msg" style="color: green"></span>
+    <span id="warn-msg" style="color: red"></span>
+</p>
+
+<script src="page-settings.js" charset="UTF-8"></script>
+
+</body>
+</html>

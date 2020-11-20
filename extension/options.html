@@ -1,34 +1,64 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <style>
-      button {
-        height: 30px;
-        width: 30px;
-        outline: none;
-        margin: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="buttonDiv">
-    </div>
-    <div>
-      <p>Choose a different background color!</p>
-    </div>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Options Page of Simple Password Generator</title>
+</head>
+<body>
 
-    <div class="message">...</div>
-    <div>
-      <textarea cols=80 rows=24
-                placeholder="eg: * { font-size: 110%; }">
-      </textarea>
+<h1>Master</h1>
 
-      <br/>
-      <button class="submit">Save</button>
-      <button class="reset">Reset</button>
-    </div>
+<p>
+  The master secret contains of
+</p>
+<ul>
+  <li>the required password you will be asked frequently for</li>
+  <li>and an optional username</li>
+</ul>
 
-    <script src="options.js"></script>
+<p>
+  The master password is either <em>Saved</em> in the browser (local storage)
+  for 14 days or <em>Set</em> in memory volatile until the end of the browser session
+  or until it is overwritten with en empty value.
+</p>
 
-  </body>
+<label for="pass">Password</label><br>
+<input type="password" size="20" id="pass"/>
+
+<input type="submit" value="Save" id="setPassBtn" title="save it to local storage">
+<input type="submit" value="Set" id="setPassVolatileBtn"
+       title="set it only volatile (temporary until the browser is closed)">
+<br>
+<br>
+<p>
+  The optional username is used as an additional parameter to derive passwords,
+  even if you use the same master password like another user,
+  different site passwords will be generated.
+</p>
+
+<label for="userName">Username</label><br>
+<input type="text" size="20" id="user-name"/>
+<input type="submit" value="Save" id="setUserBtn">
+
+<hr>
+
+<h1>Shared Secrets</h1>
+<h3>used to transfer password generation templates</h3>
+
+<hr>
+
+<input type="text" placeholder="name" size="20" id="transferName"/>
+<input type="text" disabled="disabled" size="11" id="myTransferCode" placeholder="my code"/>
+<input type="text" placeholder="their code" size="11" id="transferCode"/>
+<button type="submit" id="addBtn">Add</button>
+
+<hr>
+<br>
+
+<div id="transfer-users"></div>
+
+<script src="lib/crypto.js" charset="UTF-8"></script>
+<script src="options.js"></script>
+
+</body>
 </html>
