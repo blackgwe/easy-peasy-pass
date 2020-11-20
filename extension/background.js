@@ -1,20 +1,18 @@
 'use strict';
-// https://developer.chrome.com/extensions/messaging
+
+// see https://developer.chrome.com/extensions/messaging
+
 (() => {
   const
       storage = chrome.storage.local,
       tabs = chrome.tabs,
       runtime = chrome.runtime;
 
-  function sendMessagePromise(item) {
-    return new Promise((resolve) => runtime.sendMessage(null, item, null, _ => resolve(_)));
-  }
-
-  function storageSetPromise(key, value) {
+  function storageSet(key, value) {
     return new Promise((resolve) => storage.set({[key]: value}, _ => resolve(value)));
   }
 
-  function storageRemovePromise(key) {
+  function storageRemove(key) {
     return new Promise((resolve) => storage.remove(key, _ => resolve()));
   }
 
@@ -34,7 +32,7 @@
   });
   // endregion
 
-  runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
     switch (msg.action) {
       case 'get-master-secret':
         if (_master === null) {
@@ -53,8 +51,8 @@
 
       case 'set-transfer-settings':
         _settings = Object.assign(_settings ?? {}, {transfer: msg.transferSettings});
-        storageSetPromise('settings', _settings)
-            .then(() => sendResponse({'success': true, 'text': 'Settings saved', newSettings: _settings}));
+        await storageSet('settings', _settings);
+        sendResponse({'success': true, 'text': 'Settings saved', newSettings: _settings});
         break;
 
       case 'get-site-settings':
@@ -63,14 +61,14 @@
 
       case 'set-site-settings':
         _settings = Object.assign(_settings ?? {}, msg.siteSettings);
-        storageSetPromise('settings', _settings)
-            .then(() => sendResponse({'success': true, 'text': 'Site settings saved', newSettings: _settings}));
+        await storageSet('settings', _settings);
+        sendResponse({'success': true, 'text': 'Site settings saved', newSettings: _settings});
         break;
 
       case 'remove-site':
         delete _settings[msg.hash];
-        storageSetPromise('settings', _settings)
-            .then(() => sendResponse({'success': true, 'text': 'Site settings removed'}));
+        await storageSet('settings', _settings);
+        sendResponse({'success': true, 'text': 'Site settings removed'});
         return true;
 
       case 'get-settings':
@@ -81,19 +79,17 @@
         _volatile = msg.volatile;
         _master = msg.pass;
         if (_volatile) {
-          storageRemovePromise('pass').then(null);
+          await storageRemove('pass').then(null);
           sendResponse({'success': true, 'text': `Master password ${_master ? 'set volatile' : 'removed'}`});
         } else {
           if (!msg.pass) {
-            storageRemovePromise('pass')
-                .then(() => sendResponse({'success': true, 'text': `Master password removed`}));
+            await storageRemove('pass');
+            sendResponse({'success': true, 'text': `Master password removed`});
           } else {
-            storageSetPromise('expired', msg.expired)
-                .then(() => storageSetPromise('pass', msg.pass))
-                .then(() => sendResponse({
-                  'success': true,
-                  'text': `Master password permanently set, it expires on ${new Date(msg.expired).toISOString().slice(0, 10)}`
-                }));
+            await storageSet('expired', msg.expired);
+            await storageSet('pass', msg.pass);
+            const expiring = new Date(msg.expired).toISOString().slice(0, 10);
+            sendResponse({'success': true, 'text': `Master password permanently set, it expires on ${expiring}`});
           }
         }
         break;
@@ -101,24 +97,15 @@
       case 'set-master-user':
         _user = msg.value ? msg.value : '';
         if (_user === '') {
-          storageRemovePromise('user').then(() => sendResponse({
-            'success': true,
-            'text': `Master user removed`
-          }));
+          await storageRemove('user').then(() => sendResponse({'success': true, 'text': `Master user removed`}));
           break;
         }
-        storageSetPromise('user', _user).then(() => sendResponse({
-          'success': true,
-          'text': `Master user permanently set`
-        }));
+        await storageSet('user', _user).then(() => sendResponse({'success': true, 'text': `Master user permanently set`}));
         break;
 
       case 'set-settings':
         _settings = msg.settings;
-        storageSetPromise('settings', _settings).then(() => sendResponse({
-          'success': true,
-          'msg': `Settings changed`
-        }));
+        await storageSet('settings', _settings).then(() => sendResponse({'success': true, 'msg': `Settings changed`}));
         break;
 
       default:
@@ -184,11 +171,6 @@
     });
   });
 })();
-
-// chrome.storage.local.get('settings', (_) => console.log('settings', _.settings));
-// chrome.storage.local.get('pass', _ => console.log('pass', _));
-// chrome.storage.local.get('user', _ => console.log('user', _));
-// chrome.storage.local.get('user', v => console.log('"' + (typeof v === 'object' && v.value ? v.value : '') + '"'));
 
 // prevent attacks on local storage etc.
 delete chrome.storage;
