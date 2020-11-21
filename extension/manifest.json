@@ -1,7 +1,7 @@
 {
-  "name": "PwdGen",
-  "version": "0.38",
-  "description": "Password Generator",
+  "name": "e@syPe@syP@ss",
+  "version": "0.40",
+  "description": "Dead simple tool for deriving complex credentials using PBKDF2",
   "permissions": ["activeTab", "declarativeContent", "storage"],
 
   "options_page": "options.html",
