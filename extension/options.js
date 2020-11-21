@@ -39,8 +39,8 @@
         submitBtn.addEventListener('click', async (_) => {
             transferSettings.splice(_.target.dataset.idx, 1);
             await sendMessage({
-                'action': 'set-transfer-settings',
-                'transferSettings': transferSettings
+                 'action': 'set-transfer-settings',
+                 'transferSettings': transferSettings
             });
             updateTransfers();
         });
@@ -58,6 +58,8 @@
 
     function updateTransfers() {
         _runtime.sendMessage(null, {'action': 'get-transfer-settings'}, null, async (_) => {
+            if (_ === undefined) return;
+
             const transferUsersNode = document.getElementById('transfer-users');
             // remove all child nodes
             let node = transferUsersNode.childNodes[0];
