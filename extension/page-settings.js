@@ -208,13 +208,13 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
         await siteSecretSelected();
     }
 
-    // noinspection JSUnusedLocalSymbols
-    async function uploadBtnClick() {
-        // idea is to upload backups && maybe sync
-        fetch('https://api.github.com/users/blackgwe/repos')
-            .then(response => response.json())
-            .then(data => alert(data.length));
-    }
+    // todo
+    // async function uploadBtnClick() {
+    //     // idea is to upload backups && maybe sync
+    //     fetch('https://api.github.com/users/blackgwe/repos')
+    //         .then(response => response.json())
+    //         .then(data => alert(data.length));
+    // }
 
     async function exportBtnClick() {
         // step 1: set the unencrypted credentials
@@ -272,7 +272,7 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
         input.targetPass.value = importValue.pass ?? '';
         input.selectTemplate.value = importValue.template ?? '';
         state = INITIAL_STATE_EDIT;
-        state.siteSettings = {site: site};
+        state.siteSettings = {'site': importValue.site};
         state.changed = true;
         await render();
         input.siteSecret.focus();

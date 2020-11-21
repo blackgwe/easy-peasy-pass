@@ -68,7 +68,7 @@
     async function decryptData(obj, secret) {
         for (let prop in obj) {
             if (obj.hasOwnProperty(prop)) {
-                if (prop.match(/^(site|pass|user|script)/)) {
+                if (prop.match(/^(site|pass|user|script|template)/)) {
                     obj[prop] = await easyPeasyAuth.decrypt(secret, obj[prop]);
                 } else if (typeof obj[prop] === 'object') {
                     await decryptData(obj[prop], secret);
@@ -83,7 +83,7 @@
             secret = document.getElementById('master-user').value + document.getElementById('master-secret').value,
             importValue = JSON.parse(document.getElementById('import-text').value);
 
-        await easyPeasyAuth.setSecret(secret)
+        await easyPeasyAuth.setSecret(secret);
         const derivedPass = await easyPeasyAuth.getDerivedPass();
 
         await decryptData(importValue, await easyPeasyAuth.getMySecretBlocks(derivedPass, false, 'SHARED_SECRET'));
