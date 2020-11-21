@@ -32,7 +32,7 @@
   });
   // endregion
 
-  runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+  runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.action) {
       case 'get-master-secret':
         if (_master === null) {
@@ -51,8 +51,8 @@
 
       case 'set-transfer-settings':
         _settings = Object.assign(_settings ?? {}, {transfer: msg.transferSettings});
-        await storageSet('settings', _settings);
-        sendResponse({'success': true, 'text': 'Settings saved', newSettings: _settings});
+        storageSet('settings', _settings)
+            .then(() => sendResponse({'success': true, 'text': 'Settings saved', newSettings: _settings}));
         break;
 
       case 'get-site-settings':
@@ -61,14 +61,14 @@
 
       case 'set-site-settings':
         _settings = Object.assign(_settings ?? {}, msg.siteSettings);
-        await storageSet('settings', _settings);
-        sendResponse({'success': true, 'text': 'Site settings saved', newSettings: _settings});
+        storageSet('settings', _settings)
+            .then(() => sendResponse({'success': true, 'text': 'Site settings saved', newSettings: _settings}));
         break;
 
       case 'remove-site':
         delete _settings[msg.hash];
-        await storageSet('settings', _settings);
-        sendResponse({'success': true, 'text': 'Site settings removed'});
+        storageSet('settings', _settings)
+            .then(() => sendResponse({'success': true, 'text': 'Site settings removed'}));
         return true;
 
       case 'get-settings':
@@ -79,17 +79,19 @@
         _volatile = msg.volatile;
         _master = msg.pass;
         if (_volatile) {
-          await storageRemove('pass').then(null);
+          storageRemove('pass').then(null);
           sendResponse({'success': true, 'text': `Master password ${_master ? 'set volatile' : 'removed'}`});
         } else {
           if (!msg.pass) {
-            await storageRemove('pass');
-            sendResponse({'success': true, 'text': `Master password removed`});
+            storageRemove('pass')
+                .then(() => sendResponse({'success': true, 'text': `Master password removed`}));
           } else {
-            await storageSet('expired', msg.expired);
-            await storageSet('pass', msg.pass);
-            const expiring = new Date(msg.expired).toISOString().slice(0, 10);
-            sendResponse({'success': true, 'text': `Master password permanently set, it expires on ${expiring}`});
+            storageSet('expired', msg.expired)
+                .then(() => storageSet('pass', msg.pass))
+                .then(() => sendResponse({
+                  'success': true,
+                  'text': `Master password permanently set, it expires on ${new Date(msg.expired).toISOString().slice(0, 10)}`
+                }));
           }
         }
         break;
@@ -97,15 +99,24 @@
       case 'set-master-user':
         _user = msg.value ? msg.value : '';
         if (_user === '') {
-          await storageRemove('user').then(() => sendResponse({'success': true, 'text': `Master user removed`}));
+          storageRemove('user').then(() => sendResponse({
+            'success': true,
+            'text': `Master user removed`
+          }));
           break;
         }
-        await storageSet('user', _user).then(() => sendResponse({'success': true, 'text': `Master user permanently set`}));
+        storageSet('user', _user).then(() => sendResponse({
+          'success': true,
+          'text': `Master user permanently set`
+        }));
         break;
 
       case 'set-settings':
         _settings = msg.settings;
-        await storageSet('settings', _settings).then(() => sendResponse({'success': true, 'msg': `Settings changed`}));
+        storageSet('settings', _settings).then(() => sendResponse({
+          'success': true,
+          'msg': `Settings changed`
+        }));
         break;
 
       default:
@@ -119,13 +130,13 @@
     storage.get('expired', (item) => {
       let title = 'e@syPe@sy';
       if (item) {
-        let icon = 'icon/get_started128.png';
+        let icon = 'icon/_128.png';
         if (item.expired < new Date().getTime()) {
           title = 'Master password expires soon';
-          icon = 'icon/get_started128_err.png';
+          icon = 'icon/_128_err.png';
         } else if (item.expired - new Date().getTime() < 1000 * 5) {
           title = 'expiring date:' + new Date(item.expired).toLocaleString();
-          icon = 'icon/get_started128_warn.png';
+          icon = 'icon/_128_warn.png';
         }
 
         chrome.browserAction.setTitle({title: title});
@@ -171,6 +182,11 @@
     });
   });
 })();
+
+// chrome.storage.local.get('settings', (_) => console.log('settings', _.settings));
+// chrome.storage.local.get('pass', _ => console.log('pass', _));
+// chrome.storage.local.get('user', _ => console.log('user', _));
+// chrome.storage.local.get('user', v => console.log('"' + (typeof v === 'object' && v.value ? v.value : '') + '"'));
 
 // prevent attacks on local storage etc.
 delete chrome.storage;
