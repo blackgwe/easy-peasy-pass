@@ -3,7 +3,8 @@
     "version": "0.0.1",
     "description": "Dead simple tool for deriving complex credentials using PBKDF2",
     "scripts": {
-        "lint": "eslint -c .eslintrc.yml ./**/*.js"
+        "lint": "eslint -c .eslintrc.yml ./**/*.js",
+        "lint-md": "remark ."
     },
     "repository": {
         "type": "git",
@@ -19,6 +20,9 @@
     },
     "homepage": "https://github.com/blackgwe/easy-peasy-pass",
     "devDependencies": {
-        "eslint": "^7.14.0"
+        "eslint": "^7.14.0",
+        "remark-cli": "^9.0.0",
+        "remark-lint": "^8.0.0",
+        "remark-preset-lint-recommended": "^5.0.0"
     }
 }
