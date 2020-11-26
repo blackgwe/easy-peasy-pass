@@ -2,13 +2,11 @@
 
 // see https://developer.chrome.com/extensions/messaging
 
-chrome = chrome || {
-  storage: {
-    local: {
-      get: () => alert('chrome is not defined'); 
-    } 
-  }
-};
+chrome = chrome || { valueOf: () => false };
+
+if (!chrome.valueOf()) {
+  throw 'chrome is not defined';
+}
 
 (() => {
   const
