@@ -1,4 +1,9 @@
 'use strict';
+chrome = chrome || { valueOf: () => false };
+
+if (!chrome.valueOf()) {
+  throw 'chrome is not defined';
+}
 
 (() => {
     const _runtime = chrome.runtime;
