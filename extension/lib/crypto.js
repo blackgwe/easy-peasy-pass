@@ -10,7 +10,7 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
         pbkdf2KeyType = {"name": "AES-GCM", "length": 256},
         pbkdf2KeyUsages = ["encrypt", "decrypt"],
         pbkdf2Params = (saltData) => {
-            return {"name": "PBKDF2", salt: saltData, "iterations": 100000, "hash": "SHA-256"}
+            return {"name": "PBKDF2", salt: saltData, "iterations": 100000, "hash": "SHA-256"};
         },
         tplDef = {};
 
@@ -25,7 +25,9 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     let
         settings = {},
         secretKey = null,
-        hash = null,
+        hash = null;
+    
+    const
         getSiteTemplate = () => settings[hash] ?? {},
         _getPasswordCharArr = (_) => tplDef[(_ ?? getSiteTemplate().template ?? '24×simple').split('×')[1]],
         _getPasswordLength = (_) => (_ ?? getSiteTemplate().template ?? '24×simple').split('×')[0] * 1;
