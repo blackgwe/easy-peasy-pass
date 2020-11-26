@@ -151,7 +151,7 @@
       if (callback) {
         setTimeout(() => callback(title), 100);
       }
-    })
+    });
   }
 
   tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
