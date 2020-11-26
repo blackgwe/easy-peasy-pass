@@ -1,6 +1,10 @@
 {
   "esversion": 10,
   "globals": {
-    "chrome": true
+    "chrome": true,
+    "document": true,
+    "easyPeasyAuth": true,
+    "alert": true,
+    "setTimeout": true
   }
 }
