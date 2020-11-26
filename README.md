@@ -40,7 +40,7 @@ Tbd
 
 ## Acknowledgements
 
-Tbd.
+Tbd
 
 ## License
 
