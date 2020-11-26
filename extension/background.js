@@ -134,7 +134,7 @@ if (!chrome.valueOf()) {
     return true;
   });
 
-  function updateBrowserAction(tabId, callback) {
+  function updateBrowserAction(tabId) {
     storage.get('expired', (item) => {
       let title = 'e@syPe@sy';
       if (item) {
@@ -155,9 +155,6 @@ if (!chrome.valueOf()) {
       } else {
         storage.set({'expired': new Date().getTime() + 1000 * 10});
         chrome.browserAction.setTitle({title: title});
-      }
-      if (callback) {
-        setTimeout(() => callback(title), 100);
       }
     });
   }
