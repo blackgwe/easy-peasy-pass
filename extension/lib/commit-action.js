@@ -35,6 +35,7 @@
 
     easyPeasyAuth = null;
     if (js.length > 0) {
+        /*jslint evil: true */
         (new Function(js))();
     }
 
