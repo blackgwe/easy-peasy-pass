@@ -87,10 +87,7 @@ if (!chrome.valueOf()) {
     }
 
     document.getElementById('transferName').addEventListener('keyup', async (_) => {
-        const
-            myTransferCodeInput = document.getElementById('myTransferCode'),
-            transferNameInput = document.getElementById('transferName');
-
+        const myTransferCodeInput = document.getElementById('myTransferCode');
         myTransferCodeInput.setAttribute('value', _.target.value ? await getMySecretBlocks(_.target.value) : '');
     });
 
