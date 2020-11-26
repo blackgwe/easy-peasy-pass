@@ -2,7 +2,9 @@
 
 // see https://developer.chrome.com/extensions/messaging
 
-chrome = chrome || { valueOf: () => false };
+chrome = chrome || { 
+  valueOf: () => false 
+};
 
 if (!chrome.valueOf()) {
   throw 'chrome is not defined';
