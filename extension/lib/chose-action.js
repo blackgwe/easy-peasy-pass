@@ -29,7 +29,7 @@ choseAction = typeof choseAction !== "undefined" ? choseAction : (async (event) 
 
     switch (event.key.toLowerCase()) {
         case 'f8':
-            const result = await sendMessage({'action': 'set-settings', 'settings': {}})
+            const result = await sendMessage({'action': 'set-settings', 'settings': {}});
             alert(result.success ? 'Settings deleted' : 'Error 4712');
             break;
 
