@@ -37,9 +37,9 @@ The classic model for information security defines three objectives of security:
 
 ***Up to date.*** Attacks on the derivation of secure password data should be easily prevented by the exchange of cryptographic algorithms. All additional login data (user name, metadata for deriving the secure password, such as password length) should be easily portable.
 
-*******Password versioning*** [optional]. If it is necessary to change a compromised password, simply increment the version of the password generation template.
+***Password versioning*** (optional). If it is necessary to change a compromised password, simply increment the version of the password generation template.
 
-***Password sharing*** [optional]. If a password is used by a group of people, the secure password hash has to be derived from the secret hashes of the users (intermediate layer)
+***Password sharing*** (optional). If a password is used by a group of people, the secure password hash has to be derived from the secret hashes of the users (intermediate layer)
 
 ***Avoiding Pitfalls – Brute Force Attack.*** Various vulnerabilities could significantly increase the probability of a password being discovered by a brute force attack. For example mapping bytes to password characters could have a negative impact on the frequency distribution of the characters used in the password: If using the simple function `hash_byte modulo 127` to obtain the character index of an alphabet of 127 symbols the characters with indexes zero and one of alphabet are used 50% more often than the remaining 125. 
 
