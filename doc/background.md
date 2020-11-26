@@ -47,8 +47,8 @@ The classic model for information security defines three objectives of security:
 
 ## Related Work
 
-* https://masterpassx.org/
-* https://www.security-insider.de/password-manager-nein-danke-a-689795/
+* [https://masterpassx.org/](https://masterpassx.org)
+* [https://www.security-insider.de/password-manager-nein-danke-a-689795/](https://www.security-insider.de/password-manager-nein-danke-a-689795)
 
 ## Thoughts on Security
 
