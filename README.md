@@ -21,7 +21,7 @@ E@syPe@syP@ss is an attempt, or more precisely an experiment, to develop a user-
 * Easy to understand, easy to prove
   * The source code of the extension and a demo page is available.
   * The demo page contains less than 100 lines html (including css) + less than 200 lines of Javascript code. There is no dependency on other projects/ vendors.
-  * Password derivation is implemented with the native browser function `window.crypto.subtle::deriveKey()` using the well-known [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) / [AES-256-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) methods at 100,000 iterations.
+  * Password derivation is implemented with the native browser function [window.crypto.subtle::deriveKey](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey) using the well-known [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) / [AES-256-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) methods at 100,000 iterations.
 
 ## Disclaimer
 
