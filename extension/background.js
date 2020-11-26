@@ -2,6 +2,14 @@
 
 // see https://developer.chrome.com/extensions/messaging
 
+chrome = chrome || {
+  storage: {
+    local: {
+      get: () => alert('chrome is not defined'); 
+    } 
+  }
+};
+
 (() => {
   const
       storage = chrome.storage.local,
@@ -26,7 +34,7 @@
   storage.get('settings', s => _settings = s ? s.settings : null);
   storage.get('pass', p => {
     if (typeof p === 'object' && p.pass) {
-      _master = p.pass
+      _master = p.pass;
       _volatile = false;
     }
   });
