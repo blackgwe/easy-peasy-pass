@@ -1,0 +1,17 @@
+{	
+  "env": {	
+    "browser": true,	
+    "node": false,	
+    "es2020": true
+  },	
+  "globals": {	
+    "chrome": "readonly",	
+    "document": "readonly",	
+    "easyPeasyAuth": "writable",	
+    "alert": "readonly",	
+    "setTimeout": "readonly"	
+  },	
+  "rules": {	
+    "quotes": ["error", "single"]	
+  }	
+}

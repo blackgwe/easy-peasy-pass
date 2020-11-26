@@ -8,11 +8,9 @@
                     ? document.activeElement
                     : document.querySelector('input[type="password"]')
             ),
-
         userInput = form
             ? (form.querySelector('input[type="text"]') ?? form.querySelector('input:not([type="password"]):not([type="hidden"])'))
             : document.querySelector('input[type="text"]'),
-
         commitBtn = form.querySelector('*[type="submit"]');
 
     const
@@ -35,6 +33,8 @@
 
     easyPeasyAuth = null;
     if (js.length > 0) {
+        /* jslint evil: true */
+        /* eslint-disable no-eval */
         (new Function(js))();
     }
 

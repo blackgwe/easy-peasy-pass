@@ -7,7 +7,7 @@ timeoutHandler = setTimeout(() => alert(`
     .substr(1) // remove first empty line
 ), 800);
 
-choseAction = typeof choseAction !== "undefined" ? choseAction : (async (event) => {
+choseAction = typeof choseAction !== 'undefined' ? choseAction : (async (event) => {
 
     function sendMessage(item) {
         return new Promise((resolve) => chrome.runtime.sendMessage(null, item, null, _ => resolve(_)));
@@ -29,7 +29,7 @@ choseAction = typeof choseAction !== "undefined" ? choseAction : (async (event) 
 
     switch (event.key.toLowerCase()) {
         case 'f8':
-            const result = await sendMessage({'action': 'set-settings', 'settings': {}})
+            const result = await sendMessage({'action': 'set-settings', 'settings': {}});
             alert(result.success ? 'Settings deleted' : 'Error 4712');
             break;
 

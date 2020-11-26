@@ -7,10 +7,10 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     const
         crypto = window.crypto,
         subtle = window.crypto.subtle,
-        pbkdf2KeyType = {"name": "AES-GCM", "length": 256},
-        pbkdf2KeyUsages = ["encrypt", "decrypt"],
+        pbkdf2KeyType = {'name': 'AES-GCM', 'length': 256},
+        pbkdf2KeyUsages = ['encrypt', 'decrypt'],
         pbkdf2Params = (saltData) => {
-            return {"name": "PBKDF2", salt: saltData, "iterations": 100000, "hash": "SHA-256"}
+            return {'name': 'PBKDF2', salt: saltData, 'iterations': 100000, 'hash': 'SHA-256'};
         },
         tplDef = {};
 
@@ -23,18 +23,20 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     tplDef.strongest = tplDef.strong.concat(Array.from('∑∀∃∄∂∫∬∅∈∉∊∏∗∘∙√∛∝∞∡∢∧∨∩∪∼≈≉≅≝≤≥≪≫⊂⊆⊄⊗⊖⊕'));
 
     let
-        settings = {},
+        settings = new Map(),
         secretKey = null,
-        hash = null,
-        getSiteTemplate = () => settings[hash] ?? {},
-        _getPasswordCharArr = (_) => tplDef[(_ ?? getSiteTemplate().template ?? '24×simple').split('×')[1]],
-        _getPasswordLength = (_) => (_ ?? getSiteTemplate().template ?? '24×simple').split('×')[0] * 1;
+        hash = null;
+    
+    const
+        getSiteTemplate = () => settings.get(hash) ?? {},
+        _getPasswordCharArr = () => tplDef[(getSiteTemplate().template ?? '24×simple').split('×')[1]],
+        _getPasswordLength = () => (getSiteTemplate().template ?? '24×simple').split('×')[0] * 1;
 
     async function _deriveKey(salt, rawKey) {
         const
             keyData = new TextEncoder().encode(rawKey),
             saltData = new TextEncoder().encode(salt),
-            baseKey = await subtle.importKey("raw", keyData, "PBKDF2", false, ["deriveBits", "deriveKey"]),
+            baseKey = await subtle.importKey('raw', keyData, 'PBKDF2', false, ['deriveBits', 'deriveKey']),
             derivedKey = subtle.deriveKey(pbkdf2Params(saltData), baseKey, pbkdf2KeyType, true, pbkdf2KeyUsages);
 
         return new Uint8Array(await subtle.exportKey('raw', await derivedKey));
@@ -72,8 +74,8 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
             tpl = getSiteTemplate()[templateSection],
             correctingCodeStr = tpl ?? '',
             correctingCode = Array.from(atob(correctingCodeStr)).map(v => v.charCodeAt(0)),
-            length = tpl ? correctingCode[0] : maxLen,
-            code = correctingCode.slice(1, maxLen);
+            code = correctingCode.slice(1, maxLen),
+            length = tpl ? correctingCode[0] : maxLen;
 
         let result = '';
         new Uint8Array(secretKey)
@@ -113,14 +115,14 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
 
     function _getAesKey(secret) {
         const keyData = new TextEncoder().encode(secret.padEnd(16, '.')).slice(0, 16);
-        return subtle.importKey("raw", keyData, "AES-GCM", true, ["encrypt", "decrypt"]);
+        return subtle.importKey('raw', keyData, 'AES-GCM', true, ['encrypt', 'decrypt']);
     }
 
     async function symmetricEncrypt(secret, str) {
         const
             key = await _getAesKey(secret),
             value = new TextEncoder().encode(str),
-            buf = await subtle.encrypt({name: "AES-GCM", iv: await _getAesIv(secret)}, key, value),
+            buf = await subtle.encrypt({name: 'AES-GCM', iv: await _getAesIv(secret)}, key, value),
             cipher = String.fromCharCode.apply(null, new Uint8Array(buf));
 
         return btoa(cipher);
@@ -130,7 +132,7 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
         const
             key = await _getAesKey(secret),
             buf = new Uint8Array(Array.from(atob(cipherText)).map(v => v.charCodeAt(0))).buffer,
-            plainBuf = await subtle.decrypt({name: "AES-GCM", iv: await _getAesIv(secret)}, key, buf);
+            plainBuf = await subtle.decrypt({name: 'AES-GCM', iv: await _getAesIv(secret)}, key, buf);
 
         return new TextDecoder().decode(plainBuf);
     }
@@ -148,13 +150,13 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     }
 
     function getScript(key) {
-        const cipherJs = getSiteTemplate()['__comment_script'];
+        const cipherJs = getSiteTemplate().__comment_script;
         return cipherJs ? symmetricDecrypt(key, cipherJs) : '';
     }
 
     return {
-        'setSettings': (v) => settings = v,
-        'getSettings': () => settings,
+        'setSettings': (v) => { for (let k of Object.keys(v)) settings.set(k, v[k]) },
+        'getSettings': () => { let obj = Object.create(null);  for (let [k,v] of strMap) obj[k] = v; return obj;} ,
         'setSecret': setSecret,
         'getTemplateHash': () => hash,
         'getCorrectionUser': getCorrectionUser,

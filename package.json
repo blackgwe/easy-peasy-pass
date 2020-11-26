@@ -1,0 +1,24 @@
+{
+    "name": "easy-peasy-pass",
+    "version": "0.0.1",
+    "description": "Dead simple tool for deriving complex credentials using PBKDF2",
+    "scripts": {
+        "lint": "eslint -c .eslintrc.yml ./**/*.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/blackgwe/easy-peasy-pass"
+    },
+    "keywords": [
+        "password",
+        "extension"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/blackgwe/easy-peasy-pass/issues"
+    },
+    "homepage": "https://github.com/blackgwe/easy-peasy-pass",
+    "devDependencies": {
+        "eslint": "^7.14.0"
+    }
+}

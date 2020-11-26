@@ -2,6 +2,14 @@
 
 // see https://developer.chrome.com/extensions/messaging
 
+chrome = chrome || { 
+  valueOf: () => false 
+};
+
+if (!chrome.valueOf()) {
+  throw 'chrome is not defined';
+}
+
 (() => {
   const
       storage = chrome.storage.local,
@@ -26,7 +34,7 @@
   storage.get('settings', s => _settings = s ? s.settings : null);
   storage.get('pass', p => {
     if (typeof p === 'object' && p.pass) {
-      _master = p.pass
+      _master = p.pass;
       _volatile = false;
     }
   });
@@ -46,7 +54,7 @@
         break;
 
       case 'get-transfer-settings':
-        sendResponse(_settings['transfer'] ?? []);
+        sendResponse(_settings.transfer ?? []);
         break;
 
       case 'set-transfer-settings':
@@ -84,7 +92,7 @@
         } else {
           if (!msg.pass) {
             storageRemove('pass')
-                .then(() => sendResponse({'success': true, 'text': `Master password removed`}));
+                .then(() => sendResponse({'success': true, 'text': 'Master password removed'}));
           } else {
             storageSet('expired', msg.expired)
                 .then(() => storageSet('pass', msg.pass))
@@ -101,13 +109,13 @@
         if (_user === '') {
           storageRemove('user').then(() => sendResponse({
             'success': true,
-            'text': `Master user removed`
+            'text': 'Master user removed'
           }));
           break;
         }
         storageSet('user', _user).then(() => sendResponse({
           'success': true,
-          'text': `Master user permanently set`
+          'text': 'Master user permanently set'
         }));
         break;
 
@@ -115,7 +123,7 @@
         _settings = msg.settings;
         storageSet('settings', _settings).then(() => sendResponse({
           'success': true,
-          'msg': `Settings changed`
+          'msg': 'Settings changed'
         }));
         break;
 
@@ -151,7 +159,7 @@
       if (callback) {
         setTimeout(() => callback(title), 100);
       }
-    })
+    });
   }
 
   tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -164,19 +172,37 @@
   chrome.commands.onCommand.addListener(function (command) {
 
     storage.get('settings', async function (_) {
-      const settingsJs = `requestAnimationFrame(() => easyPeasyAuth.setSettings(JSON.parse('${JSON.stringify(_.settings)}')))`;
+      const settingsJs = `
+         // prevent Code Injection https://www.owasp.org/index.php/Code_Injection; CWE-94, CWE-79, CWE-116 -> https://cwe.mitre.org/data/definitions/94.html
+        const charMap = {
+            '<': '\\u003C',
+            '>' : '\\u003E',
+            '/': '\\u002F',
+            '\\': '\\\\',
+            '\b': '\\b',
+            '\f': '\\f',
+            '\n': '\\n',
+            '\r': '\\r',
+            '\t': '\\t',
+            '\0': '\\0',
+            '\u2028': '\\u2028',
+            '\u2029': '\\u2029'
+        };
+        const escapeUnsafeChars = (str) => str.replace(/[<>\b\f\n\r\t\0\u2028\u2029]/g, x => charMap[x]);
+        requestAnimationFrame(() => easyPeasyAuth.setSettings(escapeUnsafeChars(JSON.parse('${JSON.stringify(_.settings)}'))))
+      `;
 
-      if (command === "gen-pwd") {
+      if (command === 'gen-pwd') {
         tabs.getSelected(null, function (tab) {
-          tabs.executeScript(tab.id, {file: "lib/crypto.js"});
+          tabs.executeScript(tab.id, {file: 'lib/crypto.js'});
           tabs.executeScript(tab.id, {code: settingsJs});
-          tabs.executeScript(tab.id, {file: "lib/commit-action.js"});
+          tabs.executeScript(tab.id, {file: 'lib/commit-action.js'});
         });
-      } else if (command === "pwd-action") {
+      } else if (command === 'pwd-action') {
         tabs.getSelected(null, function (tab) {
-          tabs.executeScript(tab.id, {file: "lib/crypto.js"});
+          tabs.executeScript(tab.id, {file: 'lib/crypto.js'});
           tabs.executeScript(tab.id, {code: settingsJs});
-          tabs.executeScript(tab.id, {file: "lib/chose-action.js"});
+          tabs.executeScript(tab.id, {file: 'lib/chose-action.js'});
         });
       }
     });
