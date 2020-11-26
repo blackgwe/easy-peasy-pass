@@ -1,4 +1,7 @@
 # Easy-Peasy Password (E@syPe@syP@ss)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/179232d52d8f4874aaef06e403461d8a)](https://app.codacy.com/gh/blackgwe/easy-peasy-pass?utm_source=github.com&utm_medium=referral&utm_content=blackgwe/easy-peasy-pass&utm_campaign=Badge_Grade)
+
 **Dead simple tool for deriving complex credentials using PBKDF2**
 
 Passwords are broken - to be more precise: they are currently not really suitable for determining who is sitting at the other end of a connection. Passwords are stolen, misused and resold in many different ways and – **most importantly** – passwords are often used multiple times and are also easy to crack.  Nevertheless, they are still the most important authentication method - multi-factor authentication and FIDO2 has been dragging on for years.
