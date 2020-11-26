@@ -61,7 +61,7 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
     const jsonStr = (obj) => JSON.stringify(obj, null, 1);
     const hide = (elements) => elements.map((el) => el.classList.add('d-none'));
     const show = (elements) => elements.map((el) => el === null ? null : el.classList.remove('d-none'));
-    const deriveSecret = (secret) => setSecret(secret, master + site)
+    const deriveSecret = (secret) => setSecret(secret, master + site);
 
     // visibilities of input control elements grouped by UI state = {SHOW_VIEW, EDIT_VIEW}
     const HIDDEN_CONTROLS_SHOW_VIEW = [
@@ -132,7 +132,7 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
                 ));
                 input.siteSecretX1.focus();
                 input.settingsX1.value = state.siteSettings !== null ? jsonStr(state.siteSettings) : '';
-                break
+                break;
             case EDIT_VIEW:
                 hide(HIDDEN_CONTROLS_EDIT_VIEW);
                 show(VISIBLE_CONTROLS_EDIT_VIEW);
@@ -186,7 +186,7 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
                     }
                 }
             }
-        }
+        };
         const siteSettings = JSON.parse(input.settings.value);
         siteSettings.ts = new Date().toISOString();
         await encryptComments(siteSettings);
@@ -229,10 +229,10 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
             exportValue.pass = await getDerivedPass();
         }
         if (settings.script) {
-            exportValue.script = settings.script
+            exportValue.script = settings.script;
         }
         if (settings.template) {
-            exportValue.template = settings.template
+            exportValue.template = settings.template;
         }
         // step 2: symmetric encrypt
         const encryptData = async (obj, secret) => {
@@ -324,7 +324,7 @@ chrome.runtime.sendMessage = chrome.runtime.sendMessage || (() => console.error(
                     }
                 }
             }
-        }
+        };
         await decryptComments(siteSettings);
         state = INITIAL_STATE_SHOW;
         state.siteSettings = siteSettings;
