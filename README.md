@@ -7,14 +7,13 @@
 Passwords are broken - to be more precise: they are currently not really suitable for determining who is sitting at the other end of a connection. Passwords are stolen, misused and resold in many different ways and – **most importantly** – passwords are often used multiple times and are also easy to crack.  Nevertheless, they are still the most important authentication method - multi-factor authentication and FIDO2 has been dragging on for years.
 
 E@syPe@syP@ss is an attempt, or more precisely an experiment
-* to address the shortcomings, indeed the weaknesses, in the use of passwords (easy to crack, use of the same password for different services / providers / websites)
-* to develop a user-friendly alternative for a password store of "areas to be protected normally" using the simplest possible means. 
+  * to address the shortcomings, indeed the weaknesses, in the use of passwords (easy to crack, use of the same password for different services / providers / websites)
+  * to develop a user-friendly alternative for a password store of "areas to be protected normally" using the simplest possible means. 
 
 It attempts to eliminate inherent weaknesses of other approaches, such as password managers, by using password hashes salted with url, master-password, username, … as the underlying mechanism.
 
 ## Features
 **that are unique to password managers**
-
   * storage of `site password` hash / `master password` hash only optional and not required
   * no access to all passwords, even if the `master password` and all stored data is known
   * multiple `master passwords` support different levels of protection
