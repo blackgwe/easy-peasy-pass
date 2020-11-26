@@ -150,7 +150,7 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     }
 
     function getScript(key) {
-        const cipherJs = getSiteTemplate()['__comment_script'];
+        const cipherJs = getSiteTemplate().__comment_script;
         return cipherJs ? symmetricDecrypt(key, cipherJs) : '';
     }
 
