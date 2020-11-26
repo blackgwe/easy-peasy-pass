@@ -170,5 +170,5 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
         'decrypt': symmetricDecrypt,
         'masterKeyHoldTime': () => getSiteTemplate().holdTime ?? 7 * 24 * 3600 * 1000,
         'sendMessagePromise': (item) => sendMessagePromise(item),
-    }
+    };
 })();
