@@ -2,6 +2,7 @@
     const
         hostname = window.location.hostname.split('.').slice(-2).join('.'),
         form = document.activeElement.closest('form'),
+        commitBtn = form.querySelector('*[type="submit"]'), // jshint unused:true false positive
         pwdInput = form
             ? form.querySelector('input[type="password"]')
             : (document.activeElement.nodeName === 'INPUT' && document.activeElement.type === 'password'
@@ -10,8 +11,7 @@
             ),
         userInput = form
             ? (form.querySelector('input[type="text"]') ?? form.querySelector('input:not([type="password"]):not([type="hidden"])'))
-            : document.querySelector('input[type="text"]'),
-        commitBtn = form.querySelector('*[type="submit"]');
+            : document.querySelector('input[type="text"]');
 
     const
         master = (await easyPeasyAuth.sendMessagePromise({'action': 'get-master-secret'})).secret,

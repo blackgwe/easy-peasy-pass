@@ -71,7 +71,7 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
 
     function getDerived(offset, templateSection, charArr, maxLen) {
         const
-            tpl = getSiteTemplate()[templateSection],
+            tpl = getSiteTemplate()[templateSection] ?? null,
             correctingCodeStr = tpl ?? '',
             correctingCode = Array.from(atob(correctingCodeStr)).map(v => v.charCodeAt(0)),
             code = correctingCode.slice(1, maxLen),
