@@ -1,9 +1,4 @@
 /** styles derived from https://github.com/oxalorg/sakura/ -*/
-
-#site {
-    font-weight: bold;
-}
-
 html {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
@@ -106,10 +101,14 @@ label[for="display-pwd"] {
     display: inline;
 }
 
+body {
+    min-width:45rem
+}
+
 #select-import {
     margin-right: 0.5rem;
 }
 
-body {
-    min-width:45rem
+#site {
+    font-weight: bold;
 }
