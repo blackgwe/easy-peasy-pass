@@ -46,7 +46,7 @@
         break;
 
       case 'get-transfer-settings':
-        sendResponse(_settings['transfer'] ?? []);
+        sendResponse(_settings.transfer ?? []);
         break;
 
       case 'set-transfer-settings':
