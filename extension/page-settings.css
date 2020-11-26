@@ -89,7 +89,7 @@ label, legend, fieldset {
 }
 
 /** custom styles */
-div.settings {
+.settings {
     display: flex;
 }
 
