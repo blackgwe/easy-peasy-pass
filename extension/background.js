@@ -172,7 +172,25 @@ if (!chrome.valueOf()) {
   chrome.commands.onCommand.addListener(function (command) {
 
     storage.get('settings', async function (_) {
-      const settingsJs = `requestAnimationFrame(() => easyPeasyAuth.setSettings(JSON.parse('${JSON.stringify(_.settings)}')))`;
+      const settingsJs = `
+         // prevent Code Injection https://www.owasp.org/index.php/Code_Injection; CWE-94, CWE-79, CWE-116 -> https://cwe.mitre.org/data/definitions/94.html
+        const charMap = {
+            '<': '\\u003C',
+            '>' : '\\u003E',
+            '/': '\\u002F',
+            '\\': '\\\\',
+            '\b': '\\b',
+            '\f': '\\f',
+            '\n': '\\n',
+            '\r': '\\r',
+            '\t': '\\t',
+            '\0': '\\0',
+            '\u2028': '\\u2028',
+            '\u2029': '\\u2029'
+        };
+        const escapeUnsafeChars = (str) => str.replace(/[<>\b\f\n\r\t\0\u2028\u2029]/g, x => charMap[x]);
+        requestAnimationFrame(() => easyPeasyAuth.setSettings(escapeUnsafeChars(JSON.parse('${JSON.stringify(_.settings)}'))))
+      `;
 
       if (command === "gen-pwd") {
         tabs.getSelected(null, function (tab) {
