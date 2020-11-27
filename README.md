@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d6a205ae5dff44c9b0b9a889064dde10)](https://www.codacy.com/gh/blackgwe/easy-peasy-pass/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=blackgwe/easy-peasy-pass&amp;utm_campaign=Badge_Grade)
+[![Codacy](https://app.codacy.com/project/badge/Grade/d6a205ae5dff44c9b0b9a889064dde10)](https://www.codacy.com/gh/blackgwe/easy-peasy-pass/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=blackgwe/easy-peasy-pass&amp;utm_campaign=Badge_Grade)
 
 # Easy-Peasy Password (E@syPe@syP@ss)
 **Dead simple tool for deriving complex credentials using PBKDF2**
