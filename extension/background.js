@@ -55,17 +55,17 @@
         sendResponse(settings[msg.hash]);
         break;
 
+      case 'remove-site':
+        delete settings[msg.hash];
+        storageSet('settings', settings)
+          .then(() => sendResponse({ success: true, text: 'Site settings removed' }));
+        break;
+
       case 'set-site-settings':
         settings = Object.assign(settings ?? {}, msg.siteSettings);
         storageSet('settings', settings)
           .then(() => sendResponse({ success: true, text: 'Site settings saved', newSettings: settings }));
         break;
-
-      case 'remove-site':
-        delete settings[msg.hash];
-        storageSet('settings', settings)
-          .then(() => sendResponse({ success: true, text: 'Site settings removed' }));
-        return true;
 
       case 'get-settings':
         sendResponse({ settings });
