@@ -1,9 +1,5 @@
 // eslint-disable-next-line no-var,no-use-before-define
 var easyPeasyAuth = easyPeasyAuth || (() => {
-  function sendMessagePromise(item) {
-    return new Promise((resolve) => chrome.runtime.sendMessage(null, item, null, (_) => resolve(_)));
-  }
-
   const { crypto } = window;
   const { subtle } = window.crypto;
   const pbkdf2KeyType = { name: 'AES-GCM', length: 256 };
@@ -165,6 +161,5 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     encrypt: symmetricEncrypt,
     decrypt: symmetricDecrypt,
     masterKeyHoldTime: () => getSiteTemplate().holdTime ?? 7 * 24 * 3600 * 1000,
-    sendMessagePromise: (item) => sendMessagePromise(item),
   };
 })();

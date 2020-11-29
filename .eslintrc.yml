@@ -6,7 +6,7 @@ extends:
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
-  chrome: readonly
+  chrome: writable
   easyPeasyAuth: writable
 parserOptions:
   ecmaVersion: 2020

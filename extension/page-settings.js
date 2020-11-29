@@ -1,8 +1,29 @@
 if (typeof chrome === 'undefined') {
-  throw new Error('e@syPe@syP@ss is a chrome extension');
+  throw new Error('E@syPe@syP@ss is a chrome extension');
 }
 
 (() => {
+  // UI state handling
+  const SHOW_VIEW = 1;
+  const EDIT_VIEW = 2;
+
+  const INITIAL_STATE_EDIT = {
+    view: EDIT_VIEW,
+    siteSettings: null,
+    templateMatch: false,
+  };
+
+  const INITIAL_STATE_SHOW = {
+    view: SHOW_VIEW,
+    changed: false,
+    siteSettings: null,
+    templateMatch: false, // true, if the template hash matches an already persisted ones.
+  };
+
+  let state = INITIAL_STATE_SHOW;
+  let master = null;
+  let site = null;
+
   // ensure access to chrome/easyPeasyAuth functions (will be set to null at the end of this script)
   const { getMySecretBlocks } = easyPeasyAuth;
   const { getCorrectionUser } = easyPeasyAuth;
@@ -85,35 +106,14 @@ if (typeof chrome === 'undefined') {
     btn.cancel,
   ];
 
-  // UI state handling
-  const SHOW_VIEW = 1;
-  const EDIT_VIEW = 2;
-
-  const INITIAL_STATE_EDIT = {
-    view: EDIT_VIEW,
-    siteSettings: null,
-    templateMatch: false,
-  };
-
-  const INITIAL_STATE_SHOW = {
-    view: SHOW_VIEW,
-    changed: false,
-    siteSettings: null,
-    templateMatch: false, // true, if the template hash matches an already persisted ones.
-  };
-
-  let state = INITIAL_STATE_SHOW;
-  let master = null;
-  let site = null;
-
   // Derivation of a common shared secret for importing / exporting encrypted credentials
   // depending on input.selectImport
   async function getSharedSecret(selectElement) {
     const transfer = await sendMessage({ action: 'get-transfer-settings' });
     const idx = selectElement.value;
     return idx < 0
-      ? await getMySecretBlocks(master, false, 'SHARED_SECRET') // long secret derived from master key
-      : await getMySecretBlocks(master, true, transfer[idx].name); // short secret derived from master key + the transfer name
+      ? getMySecretBlocks(master, false, 'SHARED_SECRET') // long secret derived from master key
+      : getMySecretBlocks(master, true, transfer[idx].name); // short secret derived from master key + the transfer name
   }
 
   // show hide UI controls according to state
@@ -147,8 +147,70 @@ if (typeof chrome === 'undefined') {
 
         input.settings.value = state.siteSettings !== null ? jsonStr(state.siteSettings) : '';
         break;
+      default:
+        throw new Error(`unknown state ${state ? state.view : state}`);
     }
   }
+
+  function inputSettingsKeyUp() {
+    const settings = document.getElementById('settings');
+    state.siteSettings = JSON.parse(settings.value);
+    if (input.settings.value.match(/"user":/) || input.settings.value.match(/"pass":/)) {
+      show([div.import]);
+      btn.save.setAttribute('disabled', 'disabled');
+    } else {
+      hide([div.import]);
+      btn.save.removeAttribute('disabled');
+    }
+  }
+
+  async function updateInput(ev) {
+    const settings = JSON.parse(input.settings.value);
+    const delPressed = (ev.code === 'Backspace' || ev.code === 'Delete');
+
+    if (delPressed && ev.target === input.targetUser && !input.targetUser.value) {
+      delete settings.user_correct;
+    }
+    if (delPressed && ev.target === input.targetPass && !input.targetPass.value) {
+      delete settings.pass_correct;
+    }
+    if (ev.target === input.selectTemplate && input.selectTemplate.value === '24×simple') {
+      delete settings.template;
+    }
+
+    state = Object.assign(state, { changed: true, siteSettings: settings });
+    await render();
+  }
+
+  async function siteSecretSelected() {
+    await deriveSecret(input.siteSecretX1.value);
+    const siteSettings = await sendMessage({
+      action: 'get-site-settings',
+      hash: await getTemplateHash(),
+    });
+    const decryptComments = async (obj) => {
+      for (const prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+          if (prop.match(/^(__comment_|script|site)/)) {
+            obj[prop] = await decrypt(input.siteSecretX1.value, obj[prop]);
+          } else if (typeof obj[prop] === 'object') {
+            await decryptComments(obj[prop]);
+          }
+        }
+      }
+    };
+    await decryptComments(siteSettings);
+    state = INITIAL_STATE_SHOW;
+    state.siteSettings = siteSettings;
+    state.templateMatch = siteSettings !== null;
+    await render();
+  }
+
+  getSelectedTab(null, async (tab) => {
+    site = new URL(tab.url).hostname.split('.').slice(-2).join('.');
+    p.site.textContent = site;
+    await render();
+  });
 
   async function createBtnClick() {
     input.targetPass.value = '';
@@ -204,12 +266,14 @@ if (typeof chrome === 'undefined') {
   }
 
   // noinspection JSUnusedLocalSymbols
+  /*
   async function uploadBtnClick() {
     // idea is to upload backups && maybe sync
     fetch('https://api.github.com/users/blackgwe/repos')
       .then((response) => response.json())
       .then((data) => alert(data.length));
   }
+  */
 
   async function exportBtnClick() {
     // step 1: set the unencrypted credentials
@@ -273,60 +337,6 @@ if (typeof chrome === 'undefined') {
     input.siteSecret.focus();
   }
 
-  function inputSettingsKeyUp(_) {
-    const settings = document.getElementById('settings');
-    state.siteSettings = JSON.parse(settings.value);
-    if (input.settings.value.match(/"user":/) || input.settings.value.match(/"pass":/)) {
-      show([div.import]);
-      btn.save.setAttribute('disabled', 'disabled');
-    } else {
-      hide([div.import]);
-      btn.save.removeAttribute('disabled');
-    }
-  }
-
-  async function updateInput(ev) {
-    const settings = JSON.parse(input.settings.value);
-    const delPressed = (ev.code === 'Backspace' || ev.code === 'Delete');
-
-    if (delPressed && ev.target === input.targetUser && !input.targetUser.value) {
-      delete settings.user_correct;
-    }
-    if (delPressed && ev.target === input.targetPass && !input.targetPass.value) {
-      delete settings.pass_correct;
-    }
-    if (ev.target === input.selectTemplate && input.selectTemplate.value === '24×simple') {
-      delete settings.template;
-    }
-
-    state = Object.assign(state, { changed: true, siteSettings: settings });
-    await render();
-  }
-
-  async function siteSecretSelected() {
-    await deriveSecret(input.siteSecretX1.value);
-    const siteSettings = await sendMessage({
-      action: 'get-site-settings',
-      hash: await getTemplateHash(),
-    });
-    const decryptComments = async (obj) => {
-      for (const prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
-          if (prop.match(/^(__comment_|script|site)/)) {
-            obj[prop] = await decrypt(input.siteSecretX1.value, obj[prop]);
-          } else if (typeof obj[prop] === 'object') {
-            await decryptComments(obj[prop]);
-          }
-        }
-      }
-    };
-    await decryptComments(siteSettings);
-    state = INITIAL_STATE_SHOW;
-    state.siteSettings = siteSettings;
-    state.templateMatch = siteSettings !== null;
-    await render();
-  }
-
   document.addEventListener('DOMContentLoaded', async () => {
     input.siteSecretX1.addEventListener('keyup', siteSecretSelected);
     input.siteSecret.addEventListener('keyup', updateInput);
@@ -342,7 +352,7 @@ if (typeof chrome === 'undefined') {
     btn.import.addEventListener('click', importBtnClick);
     input.displayPwd.addEventListener('change', (ev) => document
       .querySelectorAll('input[data-pass="1"]')
-      .forEach((f, _) => f.setAttribute('type', ev.target.checked ? 'text' : 'password')));
+      .forEach((f) => f.setAttribute('type', ev.target.checked ? 'text' : 'password')));
 
     const transferSettings = await sendMessage({ action: 'get-transfer-settings' });
     for (const selectNode of [input.selectExport, input.selectImport]) {
@@ -354,12 +364,6 @@ if (typeof chrome === 'undefined') {
         selectNode.appendChild(optionEl);
       }
     }
-  });
-
-  getSelectedTab(null, async (tab) => {
-    site = new URL(tab.url).hostname.split('.').slice(-2).join('.');
-    p.site.textContent = site;
-    await render();
   });
 
   // site options can only be set, if master password is set already
