@@ -1,2 +1,9 @@
 # https://github.com/rust-lang/mdBook
 doc/mdbook
+doc/internals
+
+#keys
+extension.pem
+
+# === Rules for build artifacts ===
+node_modules

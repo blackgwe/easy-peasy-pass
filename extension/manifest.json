@@ -1,7 +1,7 @@
 {
-  "name": "e@syPe@syP@ss",
-  "version": "0.40",
-  "description": "Dead simple tool for deriving complex credentials using PBKDF2",
+  "name": "easy-peasy-pass",
+  "version": "0.41",
+  "description": "E@syPe@syP@ss - dead simple tool for deriving complex credentials using PBKDF2",
   "permissions": ["activeTab", "declarativeContent", "storage"],
 
   "options_page": "options.html",

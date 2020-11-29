@@ -1,33 +1,29 @@
-'use strict';
-
 // see https://developer.chrome.com/extensions/messaging
-
 (() => {
-  const
-      storage = chrome.storage.local,
-      tabs = chrome.tabs,
-      runtime = chrome.runtime;
+  // region optional get settings / masterPassword from local storage of the chrome extension
+  const storage = chrome.storage.local;
+  const { tabs } = chrome;
+  const { runtime } = chrome;
+
+  let user = '';
+  let settings = null;
+  let master = null;
+  let volatile = true;
 
   function storageSet(key, value) {
-    return new Promise((resolve) => storage.set({[key]: value}, _ => resolve(value)));
+    return new Promise((resolve) => storage.set({ [key]: value }, () => resolve(value)));
   }
 
   function storageRemove(key) {
-    return new Promise((resolve) => storage.remove(key, _ => resolve()));
+    return new Promise((resolve) => storage.remove(key, () => resolve()));
   }
 
-  // region optional get settings / masterPassword from local storage of the chrome extension
-  var _user = '',
-      _settings = null,
-      _master = null,
-      _volatile = true;
-
-  storage.get('user', u => _user = (typeof u === 'object' && u.user) ? u.user : '');
-  storage.get('settings', s => _settings = s ? s.settings : null);
-  storage.get('pass', p => {
+  storage.get('user', (u) => { user = (typeof u === 'object' && u.user) ? u.user : ''; return undefined; });
+  storage.get('settings', (s) => { settings = s ? s.settings : null; return undefined; });
+  storage.get('pass', (p) => {
     if (typeof p === 'object' && p.pass) {
-      _master = p.pass
-      _volatile = false;
+      master = p.pass;
+      volatile = false;
     }
   });
   // endregion
@@ -35,87 +31,86 @@
   runtime.onMessage.addListener((msg, sender, sendResponse) => {
     switch (msg.action) {
       case 'get-master-secret':
-        if (_master === null) {
-          sendResponse({'secret': null});
+        if (master === null) {
+          sendResponse({ secret: null });
         }
-        sendResponse({'secret': _master + _user, 'volatile': _volatile});
+        sendResponse({ secret: master + user, volatile });
         break;
 
       case 'get-user':
-        sendResponse(_user);
+        sendResponse(user);
         break;
 
       case 'get-transfer-settings':
-        sendResponse(_settings['transfer'] ?? []);
+        sendResponse(settings.transfer ?? []);
         break;
 
       case 'set-transfer-settings':
-        _settings = Object.assign(_settings ?? {}, {transfer: msg.transferSettings});
-        storageSet('settings', _settings)
-            .then(() => sendResponse({'success': true, 'text': 'Settings saved', newSettings: _settings}));
+        settings = Object.assign(settings ?? {}, { transfer: msg.transferSettings });
+        storageSet('settings', settings)
+          .then(() => sendResponse({ success: true, text: 'Settings saved', newSettings: settings }));
         break;
 
       case 'get-site-settings':
-        sendResponse(_settings[msg.hash]);
+        sendResponse(settings[msg.hash]);
         break;
 
       case 'set-site-settings':
-        _settings = Object.assign(_settings ?? {}, msg.siteSettings);
-        storageSet('settings', _settings)
-            .then(() => sendResponse({'success': true, 'text': 'Site settings saved', newSettings: _settings}));
+        settings = Object.assign(settings ?? {}, msg.siteSettings);
+        storageSet('settings', settings)
+          .then(() => sendResponse({ success: true, text: 'Site settings saved', newSettings: settings }));
         break;
 
       case 'remove-site':
-        delete _settings[msg.hash];
-        storageSet('settings', _settings)
-            .then(() => sendResponse({'success': true, 'text': 'Site settings removed'}));
+        delete settings[msg.hash];
+        storageSet('settings', settings)
+          .then(() => sendResponse({ success: true, text: 'Site settings removed' }));
         return true;
 
       case 'get-settings':
-        sendResponse({'settings': _settings});
+        sendResponse({ settings });
         break;
 
       case 'set-master-pass':
-        _volatile = msg.volatile;
-        _master = msg.pass;
-        if (_volatile) {
+        volatile = msg.volatile;
+        master = msg.pass;
+        if (volatile) {
           storageRemove('pass').then(null);
-          sendResponse({'success': true, 'text': `Master password ${_master ? 'set volatile' : 'removed'}`});
+          sendResponse({ success: true, text: `Master password ${master ? 'set volatile' : 'removed'}` });
+        } else if (!msg.pass) {
+          storageRemove('pass')
+            .then(() => sendResponse({ success: true, text: 'Master password removed' }));
         } else {
-          if (!msg.pass) {
-            storageRemove('pass')
-                .then(() => sendResponse({'success': true, 'text': `Master password removed`}));
-          } else {
-            storageSet('expired', msg.expired)
-                .then(() => storageSet('pass', msg.pass))
-                .then(() => sendResponse({
-                  'success': true,
-                  'text': `Master password permanently set, it expires on ${new Date(msg.expired).toISOString().slice(0, 10)}`
-                }));
-          }
+          const expiringDate = new Date(msg.expired).toISOString().slice(0, 10);
+          storageSet('expired', msg.expired)
+            .then(() => storageSet('pass', msg.pass))
+            .then(() => sendResponse({
+              success: true,
+              text: `Master password permanently set, it expires on ${expiringDate}`,
+            }));
         }
         break;
 
       case 'set-master-user':
-        _user = msg.value ? msg.value : '';
-        if (_user === '') {
+        user = msg.value ? msg.value : '';
+        if (user === '') {
           storageRemove('user').then(() => sendResponse({
-            'success': true,
-            'text': `Master user removed`
+            success: true,
+            text: 'Master user removed',
           }));
           break;
         }
-        storageSet('user', _user).then(() => sendResponse({
-          'success': true,
-          'text': `Master user permanently set`
+        storageSet('user', user).then(() => sendResponse({
+          success: true,
+          text: 'Master user permanently set',
         }));
         break;
 
       case 'set-settings':
-        _settings = msg.settings;
-        storageSet('settings', _settings).then(() => sendResponse({
-          'success': true,
-          'msg': `Settings changed`
+        settings = msg.settings;
+        storageSet('settings', settings).then(() => sendResponse({
+          success: true,
+          msg: 'Settings changed',
         }));
         break;
 
@@ -135,50 +130,35 @@
           title = 'Master password expires soon';
           icon = 'icon/_128_err.png';
         } else if (item.expired - new Date().getTime() < 1000 * 5) {
-          title = 'expiring date:' + new Date(item.expired).toLocaleString();
+          title = `expiring date:${new Date(item.expired).toLocaleString()}`;
           icon = 'icon/_128_warn.png';
         }
 
-        chrome.browserAction.setTitle({title: title});
+        chrome.browserAction.setTitle({ title });
         chrome.browserAction.setIcon({
           path: icon,
-          tabId: tabId
+          tabId,
         });
       } else {
-        storage.set({'expired': new Date().getTime() + 1000 * 10});
-        chrome.browserAction.setTitle({title: title});
+        storage.set({ expired: new Date().getTime() + 1000 * 10 });
+        chrome.browserAction.setTitle({ title });
       }
       if (callback) {
         setTimeout(() => callback(title), 100);
       }
-    })
+    });
   }
 
-  tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  tabs.onUpdated.addListener((tabId, changeInfo) => {
     if (changeInfo.status === 'complete') {
       updateBrowserAction(tabId);
     }
   });
 
-  let action = null;
-  chrome.commands.onCommand.addListener(function (command) {
-
-    storage.get('settings', async function (_) {
-      const settingsJs = `requestAnimationFrame(() => easyPeasyAuth.setSettings(JSON.parse('${JSON.stringify(_.settings)}')))`;
-
-      if (command === "gen-pwd") {
-        tabs.getSelected(null, function (tab) {
-          tabs.executeScript(tab.id, {file: "lib/crypto.js"});
-          tabs.executeScript(tab.id, {code: settingsJs});
-          tabs.executeScript(tab.id, {file: "lib/commit-action.js"});
-        });
-      } else if (command === "pwd-action") {
-        tabs.getSelected(null, function (tab) {
-          tabs.executeScript(tab.id, {file: "lib/crypto.js"});
-          tabs.executeScript(tab.id, {code: settingsJs});
-          tabs.executeScript(tab.id, {file: "lib/chose-action.js"});
-        });
-      }
+  chrome.commands.onCommand.addListener((command) => {
+    tabs.getSelected(null, (tab) => {
+      tabs.executeScript(tab.id, { file: 'lib/crypto.js' });
+      tabs.executeScript(tab.id, { file: command === 'gen-pwd' ? 'lib/commit-action.js' : 'lib/chose-action.js' });
     });
   });
 })();
