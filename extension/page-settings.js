@@ -189,11 +189,13 @@ if (typeof chrome === 'undefined') {
       hash: await getTemplateHash(),
     });
     const decryptComments = async (obj) => {
-      for (const prop of Object.getOwnPropertyNames(obj)) {
-        if (prop.match(/^(__comment_|script|site)/)) {
-          obj[prop] = await decrypt(input.siteSecretX1.value, obj[prop]);
-        } else if (typeof obj[prop] === 'object') {
-          await decryptComments(obj[prop]);
+      for (const prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+          if (prop.match(/^(__comment_|script|site)/)) {
+            obj[prop] = await decrypt(input.siteSecretX1.value, obj[prop]);
+          } else if (typeof obj[prop] === 'object') {
+            await decryptComments(obj[prop]);
+          }
         }
       }
     };
