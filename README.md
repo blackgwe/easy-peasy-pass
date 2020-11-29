@@ -7,7 +7,7 @@ password managers.
 
 ## Acknowledgements
 
-Tbd
+Tbd.
 
 ## License
 

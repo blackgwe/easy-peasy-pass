@@ -1,0 +1,34 @@
+{
+  "name": "easy-peasy-pass",
+  "version": "0.0.1",
+  "description": "Dead simple tool for deriving complex credentials using PBKDF2",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "eslint": "./node_modules/.bin/eslint",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackgwe/easy-peasy-pass.git"
+  },
+  "keywords": [
+    "derive",
+    "password",
+    "generator",
+    "PBKDF2"
+  ],
+  "author": "blackgwe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blackgwe/easy-peasy-pass/issues"
+  },
+  "homepage": "https://github.com/blackgwe/easy-peasy-pass/#readme",
+  "devDependencies": {
+    "eslint": "^7.14.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
