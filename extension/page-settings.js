@@ -190,8 +190,9 @@ if (typeof chrome === 'undefined') {
     });
     const decryptComments = async (obj) => {
       for (const prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
+        if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           if (prop.match(/^(__comment_|script|site)/)) {
+            // eslint-disable-next-line no-param-reassign
             obj[prop] = await decrypt(input.siteSecretX1.value, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
             await decryptComments(obj[prop]);
@@ -235,7 +236,7 @@ if (typeof chrome === 'undefined') {
   async function saveBtnClick() {
     const encryptComments = async (obj) => {
       for (const prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
+        if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           if (prop.match(/^(__comment_|script|site)/)) {
             obj[prop] = await encrypt(input.siteSecret.value, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
@@ -296,7 +297,7 @@ if (typeof chrome === 'undefined') {
     // step 2: symmetric encrypt
     const encryptData = async (obj, secret) => {
       for (const prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
+        if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           obj[prop] = await encrypt(secret, obj[prop]);
         }
       }
@@ -310,7 +311,7 @@ if (typeof chrome === 'undefined') {
     const importValue = JSON.parse(input.settings.value);
     const decryptData = async (obj, secret) => {
       for (const prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
+        if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           if (prop.match(/^(site|pass|user|script|template)/)) {
             obj[prop] = await decrypt(secret, obj[prop]);
           } else if (typeof obj[prop] === 'object') {

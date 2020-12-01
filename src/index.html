@@ -67,7 +67,7 @@
 <script>
     async function decryptData(obj, secret) {
         for (let prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(obj, prop)) {
                 if (prop.match(/^(site|pass|user|script)/)) {
                     obj[prop] = await easyPeasyAuth.decrypt(secret, obj[prop]);
                 } else if (typeof obj[prop] === 'object') {
