@@ -21,9 +21,8 @@
   })();
 
   function updateTransfers() {
-    runtime.sendMessage(null, { action: 'get-transfer-settings' }, null, async (_) => {
-      if (_ === undefined) return;
-
+    runtime.sendMessage(null, { action: 'get-transfer-settings' }, null, async (transfers) => {
+      if (transfers === undefined) return;
       const transferUsersNode = document.getElementById('transfer-users');
       // remove all child nodes
       let node = transferUsersNode.childNodes[0];
@@ -33,10 +32,11 @@
       }
       // add all transfer as child nodes
       let idx = 0;
-      for (const transfer of _) {
-        transferUsersNode.appendChild(await getRow(transfer, idx++));
+      for (const transfer of transfers) {
+        const row = await getRow(transfer, idx++);
+        transferUsersNode.appendChild(row);
       }
-      transferSettings = _;
+      transferSettings = transfers;
     });
   }
 

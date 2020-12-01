@@ -37,9 +37,9 @@ The classic model for information security defines three objectives of security:
 
 ***Up to date.*** Attacks on the derivation of secure password data should be easily prevented by the exchange of cryptographic algorithms. All additional login data (user name, metadata for deriving the secure password, such as password length) should be easily portable.
 
-*******Password versioning*** (optional). If it is necessary to change a compromised password, simply increment the version of the password generation template.
+***Password versioning*** (optional). If it is necessary to change a compromised password, simply increment the version of the password generation template.
 
-***Password sharing*** ([)optional). If a password is used by a group of people, the secure password hash has to be derived from the secret hashes of the users (intermediate layer)
+***Password sharing*** (optional). If a password is used by a group of people, the secure password hash has to be derived from the secret hashes of the users (intermediate layer)
 
 ***Avoiding Pitfalls – Brute Force Attack.*** Various vulnerabilities could significantly increase the probability of a password being discovered by a brute force attack. For example mapping bytes to password characters could have a negative impact on the frequency distribution of the characters used in the password: If using the simple function `hash_byte modulo 127` to obtain the character index of an alphabet of 127 symbols the characters with indexes zero and one of alphabet are used 50% more often than the remaining 125. 
 
@@ -47,8 +47,8 @@ The classic model for information security defines three objectives of security:
 
 ## Related Work
 
-* https://masterpassx.org/
-* https://www.security-insider.de/password-manager-nein-danke-a-689795/
+* [https://masterpassx.org/](https://masterpassx.org)
+* [https://www.security-insider.de/password-manager-nein-danke-a-689795/](https://www.security-insider.de/password-manager-nein-danke-a-689795)
 
 ## Thoughts on Security
 
@@ -60,9 +60,9 @@ The classic model for information security defines three objectives of security:
 * Don’t use the clipboard / don’t send any data over network
 * Display only *strong* cryptographic hashed data
 * Generate password and set it to the password field only for authorized users (master password / salt).
-  Example: 
-  (1) password field with master password → generate secure `master–password–hash
-  (2) get template for password generation by this `master–password–hash` (public available with attributes lengths / version / variations of characters)
+Example:
+  1. password field with master password → generate secure `master–password–hash
+  1. get template for password generation by this `master–password–hash` (public available with attributes lengths / version / variations of characters)
 
 *Known problems*: Keylogger (Countermeasure: readonly salt); Javascript / Browser vulnerability (we have already accepted the consequences and do not use e@syPe@syP@ss for sensitive passwords in financial/health services etc.)
 
@@ -97,8 +97,6 @@ $$
 data_{encrypted} = encrypt(password, key_{secret})\\
 password = decrypt(data_{encrypted}, key_{secret})
 $$
-
-
 
 ## Conclusions
 

@@ -15,3 +15,23 @@ rules:
   max-len: ["error", { "code": 120 }]
   no-bitwise: "off"
   no-alert: "off"
+  # we use for ... of loops
+  no-restricted-syntax: "off"
+  # we use node = nodeList[0]; its easier to read than [node] = nodeList;
+  prefer-destructuring: "off"
+    # the explanation of the rule did not convince me: differences of white space can change semantics
+  no-plusplus: "off"
+  # we define listeners, all functions are defined, when they are used
+  no-use-before-define: "off"
+  ########## DECIDE by yourself: what is better to read:
+  # let idx = 0;
+  # const rows = [];
+  # transfers.forEach((transfer) => rows.push(getRow(transfer, idx++)));
+  # (await Promise.all(rows)).forEach((row) => transferUsersNode.appendChild(row));
+  ############ vs. ###########
+  # let idx = 0;
+  # for (const transfer of transfers) {
+  #   const row = await getRow(transfer, idx++);
+  #   transferUsersNode.appendChild(row);
+  # }
+  no-await-in-loop: "off"
