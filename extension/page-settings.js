@@ -238,6 +238,7 @@ if (typeof chrome === 'undefined') {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           if (prop.match(/^(__comment_|script|site)/)) {
+            // eslint-disable-next-line no-param-reassign
             obj[prop] = await encrypt(input.siteSecret.value, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
             await encryptComments(obj[prop]);
@@ -298,6 +299,7 @@ if (typeof chrome === 'undefined') {
     const encryptData = async (obj, secret) => {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+          // eslint-disable-next-line no-param-reassign
           obj[prop] = await encrypt(secret, obj[prop]);
         }
       }
@@ -313,6 +315,7 @@ if (typeof chrome === 'undefined') {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           if (prop.match(/^(site|pass|user|script|template)/)) {
+            // eslint-disable-next-line no-param-reassign
             obj[prop] = await decrypt(secret, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
             await decryptData(obj[prop], secret);
