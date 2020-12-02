@@ -13,13 +13,21 @@ parserOptions:
   sourceType: module
 rules:
   max-len: ["error", { "code": 120 }]
+  # E@syPe@syP@ss relies heavily on the XOR operator:
+  # targetPassword XOR secretHash = correctionValue
+  # → which is stored in local storage
+  # → backward calculation: correctionValue XOR secretHash = targetPassword
+  # Impracticable attack: correctionValue XOR targetPassword = secretHash = f(masterPass, siteUrl, sitePass, userName)
+  # Even if siteUrl, sitePass, userName are known, the master password is kept secret because
+  # the cryptographic function f is a one-way function that means, that the inverse hash function f-¹ cannot be
+  # found. In other words, knowledge of all other parameters is not relevant for the "calculation" - security of
+  # E@syPe@syP@ss is solely based on the fact that it is extremely difficult to determine a value from its hash value.
   no-bitwise: "off"
+  # we simply use alerts to notify the user about errors.
   no-alert: "off"
-  # we use for ... of loops
-  no-restricted-syntax: "off"
-  # we use node = nodeList[0]; its easier to read than [node] = nodeList;
+  # we use node = nodeList[0] instead of [node] = nodeList;
   prefer-destructuring: "off"
-    # the explanation of the rule did not convince me: differences of white space can change semantics
+  # the explanation of the rule "differences of white space can change semantics" did not convince me
   no-plusplus: "off"
   # we define listeners, all functions are defined, when they are used
   no-use-before-define: "off"
@@ -35,3 +43,4 @@ rules:
   #   transferUsersNode.appendChild(row);
   # }
   no-await-in-loop: "off"
+  no-restricted-syntax: "off"
