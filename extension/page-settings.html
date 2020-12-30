@@ -6,20 +6,44 @@
     <script src="lib/crypto.js" charset="UTF-8"></script>
     <title>E@syPe@syP@ss</title>
 </head>
-<body>
+<body class="d-none">
 
-<p>Optional Settings for <span id="site"></span></p>
+<div style="display: flex; justify-content: space-between; margin: 0  0 1rem 0">
+    <div>
+        <span>
+            <a id="btn-create" href="javascript:void(0)">New</a>
+        </span>
+        |
+        <span>
+            <a id="btn-show" href="javascript:void(0)">Modify and Export</a>
+        </span>
+        |
+        <span>
+            <a id="btn-import" href="javascript:void(0)">Import</a>
+        </span>
+    </div>
+    <span class="">
+        <a href="options.html" target="_blank" id="btn-options">Settings</a>
+    </span>
+</div>
 
 <section id="show-settings">
-    <div class="settings">
-        <div style="min-width: 16rem; margin-top: 1rem">
-            <label for="site-secret-x1">Your Site Password</label>
-            <input id="site-secret-x1" type="password">
+    <div>
+        <div>
+            site password for
+            <label for="site-secret-show"><span id="site-show"></span></label>
+            <input type="password" class="site-credential" id="site-secret-show">
+        </div>
+        <div style="margin-top: 0.9rem">
+            <label for="select-export">Export to</label>
+            <select id="select-export" class="target-credentials">
+                <option value="-1">Backup</option>
+            </select>
         </div>
     </div>
 
-    <label for="settings-x1"></label>
-    <textarea id="settings-x1" rows="10" cols="120"></textarea>
+    <label for="settings-show"></label>
+    <textarea id="settings-show" rows="10" cols="120"></textarea>
 
 </section>
 
@@ -27,49 +51,47 @@
 
     <label for="select-template"></label>
     <select id="select-template">
-        <option value="8×lowerCaseNum">8 lower case letters and numbers</option>
-        <option value="12×lowerCaseNum">12 lower case letters and numbers</option>
-        <option value="8×simplest">8 characters, including numbers & few common special chars</option>
-        <option value="8×simple">8 characters, including numbers & few extraordinary chars</option>
-        <option value="12×simple">12 characters, including numbers & few extraordinary chars</option>
-        <option selected value="24×simple">24 characters, including numbers & few extraordinary chars</option>
-        <option value="12×strong">12 characters, including some extraordinary ones</option>
-        <option value="12×strongest">12 characters, including very rare ones</option>
-        <option value="24×strongest">24 characters, including very rare ones</option>
+        <option value="8×simplest">8 chars/digits & special chars</option>
+        <option value="8×simple">8 chars/digits & extraordinary chars</option>
+        <option value="12×simple">12 chars/digits & extraordinary chars</option>
+        <option selected value="24×simple">24 chars/digits & extraordinary chars</option>
+        <option value="12×strong">12 extraordinary chars/digits</option>
+        <option value="12×strongest">12 very rare chars/digits</option>
+        <option value="24×strongest">24 very rare chars/digits</option>
     </select>
 
-    <hr>
     <div class="settings">
-        <div style="min-width: 16rem; margin-top: 1rem">
-            <label for="site-secret">Your Site Password</label>
-            <input type="password" data-pass="1" id="site-secret"><br>
+        <div>
+            site password for
+            <label for="site-secret"><span id="site"></span></label>
+            <input type="password" data-pass="1" class="site-credential" id="site-secret"><br>
         </div>
-        <div id="div-mapping" style="min-width: 16rem">
+        <div id="div-mapping">
             Mapping to given
             <label id="label-target-user" for="site-target-user">Target User</label>
-            <input type="password" data-pass="1" id="site-target-user"><br>
+            <input type="password" data-pass="1" class="target-credentials" id="site-target-user"><br>
             <label id="label-target-pass" for="site-target-pass">Target Password</label>
-            <input type="password" data-pass="1" id="site-target-pass"><br>
+            <input type="password" data-pass="1" class="target-credentials" id="site-target-pass"><br>
         </div>
     </div>
 
     <div>
-    <label for="display-pwd">Show passwords</label>
-    <input id="display-pwd" type="checkbox">
+        <div>
+            <label for="display-pwd">Show Passwords</label>
+            <input id="display-pwd" type="checkbox">
+        </div>
     </div>
+</section>
 
-    <hr>
+<section id="import-section">
     <label for="settings"></label>
     <textarea rows="10" cols="120" id="settings"></textarea>
 </section>
 
-<div id="div-export" class="d-none">
-    <label for="select-export">Export to</label>
-    <select id="select-export">
-        <option value="-1">Backup</option>
-    </select>
+<div id="div-show" class="d-none">
+    <button id="btn-save-changes">Save to device</button>
     <button id="btn-export">Encrypt & Export</button>
-    <hr>
+    <button id="btn-remove-site-pass">Remove from device</button>
 </div>
 
 <div id="div-import" class="d-none">
@@ -77,14 +99,11 @@
     <select id="select-import">
         <option value="-1">Backup</option>
     </select>
-    <button id="btn-import">Decrypt & Import</button>
-    <hr>
+    <button id="btn-decrypt-import-save">Decrypt & Import</button>
 </div>
 
-<button id="btn-create">New</button>
-<button class="d-none" id="btn-cancel">Cancel</button>
 <button class="d-none" id="btn-save">Save to device</button>
-<button class="d-none" id="btn-remove-site-pass">Remove from device</button>
+
 
 <p>
     <span id="success-msg" style="color: green"></span>

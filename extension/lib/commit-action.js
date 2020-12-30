@@ -10,33 +10,57 @@ async function getPersistedSettings(secret, salt) {
   return settings;
 }
 
-function getPwdInput(form) {
-  let result = form.querySelector('input[type="password"]');
-  if (!result) {
-    result = document.activeElement.nodeName === 'INPUT' && document.activeElement.type === 'password'
-      ? document.activeElement
-      : document.querySelector('input[type="password"]');
+function getPwdInput(form, fillPass) {
+  let result = document.querySelector(':focus');
+  if (fillPass && result) {
+    return result;
+  }
+  if (form) {
+    result = form.querySelector('input[type="password"]');
+    if (!result) {
+      result = document.activeElement.nodeName === 'INPUT' && document.activeElement.type === 'password'
+        ? document.activeElement
+        : document.querySelector('input[type="password"]');
+    }
   }
   return result;
 }
 
-function getUserInput(form) {
+function getUserInput(form, fillUser) {
+  let result = document.querySelector('input:focus');
+  if (fillUser && result) {
+    return result;
+  }
+  result = document.querySelector('input[type="email"]') || result;
+  result = document.querySelector('input[type="text"]') || result;
   if (form) {
     const formTextInputEl = form.querySelector('input[type="text"]');
+    const formEmailInputEl = form.querySelector('input[type="email"]');
     const formOtherEl = form.querySelector('input:not([type="password"]):not([type="hidden"])');
-    return formTextInputEl ?? formOtherEl;
+    result = formTextInputEl || formEmailInputEl || formOtherEl || result;
   }
-  return document.querySelector('input[type="text"]');
+  return result;
+}
+
+function getCommitBtn(form) {
+  let result = document.querySelector('*[type="submit"]');
+  result = result || document.querySelector('button.primary');
+  result = result || document.querySelector('button');
+  if (form) {
+    result = form.querySelector('*[type="submit"]') || result;
+  }
+  return result;
 }
 
 (async () => {
   const hostname = window.location.hostname.split('.').slice(-2).join('.');
-  const form = document.activeElement.closest('form');
-  const pwdInput = getPwdInput(form);
-  const userInput = getUserInput(form);
-  const commitBtn = form ? form.querySelector('*[type="submit"]') : null;
-
+  const form = document.activeElement.closest('form') || document.querySelector('form');
+  const hasScriptOption = typeof scriptOptions !== 'undefined';
+  const pwdInput = getPwdInput(form, hasScriptOption && scriptOptions === 'set-pass');
+  const userInput = getUserInput(form, hasScriptOption && scriptOptions === 'set-user');
+  const commitBtn = getCommitBtn(form);
   const master = (await sendMessagePromise({ action: 'get-master-secret' })).secret;
+
   if (master === null) {
     alert('Please give the master password first!');
     return;
@@ -46,19 +70,26 @@ function getUserInput(form) {
   const salt = master + hostname;
   await easyPeasyAuth.setSettings(await getPersistedSettings(secret, salt));
 
-  userInput.value = userInput ? await easyPeasyAuth.getDerivedUser() : '';
-  pwdInput.value = pwdInput ? await easyPeasyAuth.getDerivedPass() : '';
+  if (!hasScriptOption || scriptOptions === 'set-user') {
+    userInput.value = userInput ? await easyPeasyAuth.getDerivedUser() : '';
+  }
 
-  const js = await easyPeasyAuth.getScript(secret);
-  const doCommit = easyPeasyAuth.doImmediatelySubmit() !== false;
+  if (!hasScriptOption || scriptOptions === 'set-pass') {
+    pwdInput.value = pwdInput ? await easyPeasyAuth.getDerivedPass() : '';
+
+    const js = await easyPeasyAuth.getScript(secret);
+    const doCommit = easyPeasyAuth.doImmediatelySubmit() !== false;
+
+    easyPeasyAuth = null;
+    if (js.length > 0) {
+      // eslint-disable-next-line no-new-func
+      (new Function(js))();
+    }
+
+    if (doCommit) {
+      commitBtn.click();
+    }
+  }
 
   easyPeasyAuth = null;
-  if (js.length > 0) {
-  // eslint-disable-next-line no-new-func
-    (new Function(js))();
-  }
-
-  if (doCommit) {
-    commitBtn.click();
-  }
 })();

@@ -3,7 +3,10 @@ function sendMessage(item) {
 }
 
 async function deleteSettings() {
-  const result = await sendMessage({ action: 'set-settings', settings: {} });
+  let result = await sendMessage({ action: 'set-settings', settings: {} });
+  if (result.success) {
+    result = await sendMessage({ action: 'set-master-pass', pass: null, volatile: true });
+  }
   alert(result.success ? 'Settings deleted' : 'Error 4712');
 }
 

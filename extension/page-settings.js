@@ -6,6 +6,7 @@ if (typeof chrome === 'undefined') {
   // UI state handling
   const SHOW_VIEW = 1;
   const EDIT_VIEW = 2;
+  const IMPORT_VIEW = 3;
 
   const INITIAL_STATE_EDIT = {
     view: EDIT_VIEW,
@@ -20,7 +21,13 @@ if (typeof chrome === 'undefined') {
     templateMatch: false, // true, if the template hash matches an already persisted ones.
   };
 
-  let state = INITIAL_STATE_SHOW;
+  const INITIAL_STATE_IMPORT = {
+    view: IMPORT_VIEW,
+    changed: false,
+    siteSettings: null,
+  };
+
+  let state = INITIAL_STATE_EDIT;
   let master = null;
   let site = null;
 
@@ -41,35 +48,42 @@ if (typeof chrome === 'undefined') {
   const sendMessage = (item) => new Promise((resolve) => chromeSendMessage(null, item, null, (_) => resolve(_)));
 
   // simplify access to dom nodes
-  const p = { site: document.getElementById('site') };
+  const p = {
+    site: document.getElementById('site'),
+    siteShow: document.getElementById('site-show'),
+  };
   const input = {
     targetUser: document.getElementById('site-target-user'),
     targetPass: document.getElementById('site-target-pass'),
     settings: document.getElementById('settings'),
-    settingsX1: document.getElementById('settings-x1'),
+    settingsShow: document.getElementById('settings-show'),
     siteSecret: document.getElementById('site-secret'),
-    siteSecretX1: document.getElementById('site-secret-x1'),
+    siteSecretShow: document.getElementById('site-secret-show'),
     selectTemplate: document.getElementById('select-template'),
     selectImport: document.getElementById('select-import'),
     selectExport: document.getElementById('select-export'),
-    displayPwd: document.getElementById('display-pwd'),
+    displayPwd: document.getElementById('display-pwd')
   };
   const btn = {
-    create: document.getElementById('btn-create'),
-    save: document.getElementById('btn-save'),
-    cancel: document.getElementById('btn-cancel'),
-    removeSitePass: document.getElementById('btn-remove-site-pass'),
-    export: document.getElementById('btn-export'),
+    edit: document.getElementById('btn-create'),
+    show: document.getElementById('btn-show'),
     import: document.getElementById('btn-import'),
+    options: document.getElementById('btn-options'),
+    save: document.getElementById('btn-save'),
+    removeSitePass: document.getElementById('btn-remove-site-pass'),
+    saveChanges: document.getElementById('btn-save-changes'),
+    export: document.getElementById('btn-export'),
+    decryptImportSave: document.getElementById('btn-decrypt-import-save'),
   };
   const div = {
     mapping: document.getElementById('div-mapping'),
-    export: document.getElementById('div-export'),
+    show: document.getElementById('div-show'),
     import: document.getElementById('div-import'),
   };
   const section = {
     showSettings: document.getElementById('show-settings'),
     editSettings: document.getElementById('site-section'),
+    importSettings: document.getElementById('import-section'),
   };
 
   // Utility functions
@@ -79,32 +93,49 @@ if (typeof chrome === 'undefined') {
   const deriveSecret = (secret) => setSecret(secret, master + site);
 
   // visibilities of input control elements grouped by UI state = {SHOW_VIEW, EDIT_VIEW}
+  const HIDDEN_CONTROLS_IMPORT_VIEW = [
+    section.showSettings,
+    section.editSettings,
+    div.show,
+    btn.save,
+  ];
+  const VISIBLE_CONTROLS_IMPORT_VIEW = [
+    div.import,
+    section.importSettings,
+  ];
   const HIDDEN_CONTROLS_SHOW_VIEW = [
+    section.importSettings,
     section.editSettings,
     div.import,
-    div.export,
-    btn.removeSitePass,
+    div.show,
     btn.save,
-    btn.cancel,
   ];
   const VISIBLE_CONTROLS_SHOW_VIEW = [
     section.showSettings,
-    btn.create,
   ];
   const HIDDEN_CONTROLS_EDIT_VIEW = [
+    section.importSettings,
     section.showSettings,
-    btn.removeSitePass,
-    btn.create,
     div.import,
-    div.export,
+    div.show,
   ];
-
   const VISIBLE_CONTROLS_EDIT_VIEW = [
     section.editSettings,
     div.mapping,
     btn.save,
-    btn.cancel,
   ];
+
+  async function enableBtn(buttons) {
+    buttons.forEach((el) => {
+      el.classList.remove('disabled');
+      el.parentElement.classList.remove('disabled');
+    });
+  }
+
+  async function disableBtn(button) {
+    button.classList.add('disabled');
+    button.parentElement.classList.add('disabled');
+  }
 
   // Derivation of a common shared secret for importing / exporting encrypted credentials
   // depending on input.selectImport
@@ -118,17 +149,24 @@ if (typeof chrome === 'undefined') {
 
   // show hide UI controls according to state
   async function render() {
+    await enableBtn([btn.edit, btn.show, btn.import]);
     switch (state.view) {
+      case IMPORT_VIEW:
+        await disableBtn(btn.import);
+        hide(HIDDEN_CONTROLS_IMPORT_VIEW);
+        show(VISIBLE_CONTROLS_IMPORT_VIEW);
+        input.siteSecretShow.focus();
+        input.settingsShow.value = state.siteSettings !== null ? jsonStr(state.siteSettings) : '';
+        break;
       case SHOW_VIEW:
+        await disableBtn(btn.show);
         hide(HIDDEN_CONTROLS_SHOW_VIEW);
-        show(VISIBLE_CONTROLS_SHOW_VIEW.concat(
-          state.templateMatch ? div.export : null,
-          state.templateMatch ? btn.removeSitePass : null,
-        ));
-        input.siteSecretX1.focus();
-        input.settingsX1.value = state.siteSettings !== null ? jsonStr(state.siteSettings) : '';
+        show(VISIBLE_CONTROLS_SHOW_VIEW.concat(state.templateMatch ? div.show : null));
+        input.siteSecretShow.focus();
+        input.settingsShow.value = state.siteSettings !== null ? jsonStr(state.siteSettings) : '';
         break;
       case EDIT_VIEW:
+        await disableBtn(btn.edit);
         hide(HIDDEN_CONTROLS_EDIT_VIEW);
         show(VISIBLE_CONTROLS_EDIT_VIEW);
         if (state.changed) {
@@ -183,7 +221,7 @@ if (typeof chrome === 'undefined') {
   }
 
   async function siteSecretSelected() {
-    await deriveSecret(input.siteSecretX1.value);
+    await deriveSecret(input.siteSecretShow.value);
     const siteSettings = await sendMessage({
       action: 'get-site-settings',
       hash: await getTemplateHash(),
@@ -193,7 +231,7 @@ if (typeof chrome === 'undefined') {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           if (prop.match(/^(__comment_|script|site)/)) {
             // eslint-disable-next-line no-param-reassign
-            obj[prop] = await decrypt(input.siteSecretX1.value, obj[prop]);
+            obj[prop] = await decrypt(input.siteSecretShow.value, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
             await decryptComments(obj[prop]);
           }
@@ -201,7 +239,7 @@ if (typeof chrome === 'undefined') {
       }
     };
     await decryptComments(siteSettings);
-    state = INITIAL_STATE_SHOW;
+    state = { ...INITIAL_STATE_SHOW };
     state.siteSettings = siteSettings;
     state.templateMatch = siteSettings !== null;
     await render();
@@ -210,6 +248,8 @@ if (typeof chrome === 'undefined') {
   getSelectedTab(null, async (tab) => {
     site = new URL(tab.url).hostname.split('.').slice(-2).join('.');
     p.site.textContent = site;
+    p.siteShow.textContent = site;
+    btn.options.setAttribute('href', `options.html?site=${site}`);
     await render();
   });
 
@@ -218,19 +258,20 @@ if (typeof chrome === 'undefined') {
     input.targetUser.value = '';
     input.siteSecret.value = '';
     state = { ...INITIAL_STATE_EDIT };
-    state.siteSettings = {
-      site,
-    };
+    state.siteSettings = { site };
     await render();
     input.siteSecret.focus();
   }
 
-  async function cancelBtnClick() {
-    input.siteSecret.value = '';
-    input.targetPass.value = '';
-    input.targetUser.value = '';
-    state = INITIAL_STATE_SHOW;
+  async function showBtnClick() {
+    state = { ...INITIAL_STATE_SHOW };
     await siteSecretSelected();
+  }
+
+  async function importBtnClick() {
+    state = { ...INITIAL_STATE_IMPORT };
+    input.settings.value = '';
+    await render();
   }
 
   async function saveBtnClick() {
@@ -246,14 +287,14 @@ if (typeof chrome === 'undefined') {
         }
       }
     };
-    const siteSettings = JSON.parse(input.settings.value);
+    const siteSettings = JSON.parse(state.view === EDIT_VIEW ? input.settings.value : input.settingsShow.value);
     siteSettings.ts = new Date().toISOString();
     await encryptComments(siteSettings);
     await sendMessage({
       action: 'set-site-settings',
       siteSettings: { [getTemplateHash()]: siteSettings },
     });
-    input.siteSecretX1.value = input.siteSecret.value;
+    input.siteSecretShow.value = input.siteSecret.value;
     state.view = SHOW_VIEW;
     await siteSecretSelected();
   }
@@ -263,7 +304,7 @@ if (typeof chrome === 'undefined') {
       action: 'remove-site',
       hash: getTemplateHash(),
     });
-    input.siteSecretX1.value = '';
+    input.siteSecretShow.value = '';
     await siteSecretSelected();
   }
 
@@ -282,13 +323,9 @@ if (typeof chrome === 'undefined') {
     const settings = state.siteSettings;
     const exportValue = { site };
     await setSettings((await sendMessage({ action: 'get-settings' })).settings);
-    await deriveSecret(input.siteSecretX1.value);
-    if (settings.user_correct) {
-      exportValue.user = await getDerivedUser();
-    }
-    if (settings.pass_correct) {
-      exportValue.pass = await getDerivedPass();
-    }
+    await deriveSecret(input.siteSecretShow.value);
+    exportValue.user = await getDerivedUser();
+    exportValue.pass = await getDerivedPass();
     if (settings.script) {
       exportValue.script = settings.script;
     }
@@ -309,7 +346,7 @@ if (typeof chrome === 'undefined') {
     alert('Encrypted credentials copied to clipboard');
   }
 
-  async function importBtnClick() {
+  async function decryptImportSaveBtnClick() {
     const importValue = JSON.parse(input.settings.value);
     const decryptData = async (obj, secret) => {
       for (const prop in obj) {
@@ -331,10 +368,10 @@ if (typeof chrome === 'undefined') {
     }
 
     input.siteSecret.value = '';
-    input.targetUser.value = importValue.user ?? '';
-    input.targetPass.value = importValue.pass ?? '';
-    input.selectTemplate.value = importValue.template ?? '';
-    state = INITIAL_STATE_EDIT;
+    input.targetUser.value = importValue.user || '';
+    input.targetPass.value = importValue.pass || '';
+    input.selectTemplate.value = importValue.template || '24×simple';
+    state = { ...INITIAL_STATE_EDIT };
     state.siteSettings = { site };
     state.changed = true;
     await render();
@@ -342,7 +379,7 @@ if (typeof chrome === 'undefined') {
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
-    input.siteSecretX1.addEventListener('keyup', siteSecretSelected);
+    input.siteSecretShow.addEventListener('keyup', siteSecretSelected);
     input.siteSecret.addEventListener('keyup', updateInput);
     input.targetUser.addEventListener('keyup', updateInput);
     input.targetPass.addEventListener('keyup', updateInput);
@@ -350,10 +387,12 @@ if (typeof chrome === 'undefined') {
     input.settings.addEventListener('input', inputSettingsKeyUp);
     btn.removeSitePass.addEventListener('click', removeBtnClick);
     btn.save.addEventListener('click', saveBtnClick);
-    btn.cancel.addEventListener('click', cancelBtnClick);
-    btn.create.addEventListener('click', createBtnClick);
-    btn.export.addEventListener('click', exportBtnClick);
+    btn.saveChanges.addEventListener('click', saveBtnClick);
+    btn.edit.addEventListener('click', createBtnClick);
+    btn.show.addEventListener('click', showBtnClick);
     btn.import.addEventListener('click', importBtnClick);
+    btn.export.addEventListener('click', exportBtnClick);
+    btn.decryptImportSave.addEventListener('click', decryptImportSaveBtnClick);
     input.displayPwd.addEventListener('change', (ev) => document
       .querySelectorAll('input[data-pass="1"]')
       .forEach((f) => f.setAttribute('type', ev.target.checked ? 'text' : 'password')));
@@ -372,12 +411,15 @@ if (typeof chrome === 'undefined') {
 
   // site options can only be set, if master password is set already
   (async () => {
-    master = (await sendMessage({ action: 'get-master-secret' })).secret;
-    if (!master) {
+    const masterObj = (await sendMessage({ action: 'get-master-secret' }));
+    if (!masterObj || !masterObj.secret) {
       alert('Please give the master password first!');
+      btn.options.click();
     } else {
-      await siteSecretSelected();
+      master = masterObj.secret;
+      await createBtnClick();
     }
+    document.querySelector('body').classList.remove('d-none');
   })();
 })();
 

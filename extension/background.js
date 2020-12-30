@@ -21,6 +21,7 @@
   storage.get('user', (u) => { user = (typeof u === 'object' && u.user) ? u.user : ''; return undefined; });
   storage.get('settings', (s) => { settings = s ? s.settings : null; return undefined; });
   storage.get('pass', (p) => {
+    master = null;
     if (typeof p === 'object' && p.pass) {
       master = p.pass;
       volatile = false;
@@ -42,11 +43,11 @@
         break;
 
       case 'get-transfer-settings':
-        sendResponse(settings.transfer ?? []);
+        sendResponse(settings.transfer || []);
         break;
 
       case 'set-transfer-settings':
-        settings = Object.assign(settings ?? {}, { transfer: msg.transferSettings });
+        settings = Object.assign(settings || {}, { transfer: msg.transferSettings });
         storageSet('settings', settings)
           .then(() => sendResponse({ success: true, text: 'Settings saved', newSettings: settings }));
         break;
@@ -62,7 +63,7 @@
         break;
 
       case 'set-site-settings':
-        settings = Object.assign(settings ?? {}, msg.siteSettings);
+        settings = Object.assign(settings || {}, msg.siteSettings);
         storageSet('settings', settings)
           .then(() => sendResponse({ success: true, text: 'Site settings saved', newSettings: settings }));
         break;
@@ -157,10 +158,27 @@
 
   chrome.commands.onCommand.addListener((command) => {
     tabs.getSelected(null, (tab) => {
+      tabs.executeScript(tab.id, { code: 'scriptOptions = void(0);' });
       tabs.executeScript(tab.id, { file: 'lib/crypto.js' });
       tabs.executeScript(tab.id, { file: command === 'gen-pwd' ? 'lib/commit-action.js' : 'lib/chose-action.js' });
     });
   });
+
+  function onCtxMenuClick(info, tab) {
+    // console.log("info: " + JSON.stringify(info));
+    if (info.menuItemId === 'user') {
+      tabs.executeScript(tab.id, { code: 'scriptOptions = \'set-user\';' });
+    } else if (info.menuItemId === 'pwd') {
+      tabs.executeScript(tab.id, { code: 'scriptOptions = \'set-pass\';' });
+    } /** else menuItemId === page */
+    tabs.executeScript(tab.id, { file: 'lib/crypto.js' });
+    tabs.executeScript(tab.id, { file: 'lib/commit-action.js' });
+  }
+
+  chrome.contextMenus.create({ contexts: ['editable'], title: 'Fill User', id: 'user' });
+  chrome.contextMenus.create({ contexts: ['editable'], title: 'Fill Pass', id: 'pwd' });
+  chrome.contextMenus.create({ contexts: ['page'], title: 'Fill Credentials', id: 'page' });
+  chrome.contextMenus.onClicked.addListener(onCtxMenuClick);
 })();
 
 // chrome.storage.local.get('settings', (_) => console.log('settings', _.settings));
