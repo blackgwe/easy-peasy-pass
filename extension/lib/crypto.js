@@ -14,17 +14,17 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
   tplDef.letter = [...Array(62)].map((_, i) => String.fromCharCode(i < 26 ? i + 97 : (i < 52 ? i + 39 : i - 4)));
   tplDef.name = tplDef.letter.concat(['$', '_']);
   // eslint-disable-next-line no-useless-escape
-  tplDef.simplest = tplDef.name.concat(Array.from('.,:;$!?#+-*/│\()^@€'));
-  tplDef.simple = tplDef.simplest.concat(Array.from('-¼½¾²³º«»×µØÆƒß®©═±§¶-½²¾³º«»×µØÆí'));
-  tplDef.strong = tplDef.simple.concat(Array.from('℠↯↺↻↩⇄⇆⇦⇧⇨⇩⌃⌄⍺'));
-  tplDef.strongest = tplDef.strong.concat(Array.from('∑∀∃∄∂∫∬∅∈∉∊∏∗∘∙√∛∝∞∡∢∧∨∩∪∼≈≉≅≝≤≥≪≫⊂⊆⊄⊗⊖⊕'));
+  tplDef.simplest = tplDef.name.concat(Array.from('0.,:;$!?#+-*/│\()^@€"\'%=_'));
+  tplDef.simple = tplDef.simplest.concat(Array.from('-¼½¾²³«»×µØÆƒß®©═±§¶&[]{}<>~'));
+  tplDef.strong = tplDef.simple.concat(Array.from('℠↯↺↻↩⇄⇆⇦⇧⇨⇩⌃⌄⍺äöüÄÖÜÈèéÉÒòóÀàáÌìíÙùúÂâÊêÎîÔôÛûåœçÇ¥'));
+  tplDef.strongest = tplDef.strong.concat(Array.from('∑∀∃∄∂†Ω¡∫∬∅∈∉∊∏∗∘∙√∛∝∞∡∢∧∨∩∪∼≈≉≅≝≤≥≠¬…¿‘æπ¢≪≫ø⊂⊆⊄⊗⊖⊕°`´¨•–∆'));
 
   let settings = {};
   let secretKey = null;
   let hash = null;
-  const getSiteTemplate = () => settings[hash] ?? {};
-  const getPasswordCharArr = (_) => tplDef[(_ ?? getSiteTemplate().template ?? '24×simple').split('×')[1]];
-  const getPasswordLength = (_) => (_ ?? getSiteTemplate().template ?? '24×simple').split('×')[0] * 1;
+  const getSiteTemplate = () => settings[hash] || {};
+  const getPasswordCharArr = (_) => tplDef[(_ || getSiteTemplate().template || '24×simple').split('×')[1]];
+  const getPasswordLength = (_) => (_ || getSiteTemplate().template || '24×simple').split('×')[0] * 1;
 
   async function deriveKey(salt, rawKey) {
     const keyData = new TextEncoder().encode(rawKey);
@@ -44,7 +44,7 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
   }
 
   async function setSecret(_v, _salt) {
-    secretKey = [...await deriveKey64Bit(_v ?? '', _salt ?? '')];
+    secretKey = [...await deriveKey64Bit(_v || '', _salt || '')];
     hash = '_';
     new Uint8Array(secretKey)
       .slice(0, 5)
@@ -59,10 +59,10 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
 
   function getDerived(offset, templateSection, charArr, maxLen) {
     const tpl = getSiteTemplate()[templateSection];
-    const correctingCodeStr = tpl ?? '';
+    const correctingCodeStr = tpl || '';
     const correctingCode = Array.from(atob(correctingCodeStr)).map((v) => v.charCodeAt(0));
     const length = tpl ? correctingCode[0] : maxLen;
-    const code = correctingCode.slice(1, maxLen);
+    const code = correctingCode.slice(1, maxLen + 1);
 
     let result = '';
     new Uint8Array(secretKey)
@@ -118,7 +118,6 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     const value = new TextEncoder().encode(str);
     const buf = await subtle.encrypt({ name: 'AES-GCM', iv: await getAesIv(secret) }, key, value);
     const cipher = String.fromCharCode.apply(null, new Uint8Array(buf));
-
     return btoa(cipher);
   }
 
@@ -126,7 +125,6 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     const key = await getAesKey(secret);
     const buf = new Uint8Array(Array.from(atob(cipherText)).map((v) => v.charCodeAt(0))).buffer;
     const plainBuf = await subtle.decrypt({ name: 'AES-GCM', iv: await getAesIv(secret) }, key, buf);
-
     return new TextDecoder().decode(plainBuf);
   }
 
@@ -156,10 +154,10 @@ var easyPeasyAuth = easyPeasyAuth || (() => {
     getDerivedPass: () => getDerivedPass('pass_correct', 64),
     getDerivedUser: () => getDerivedUser('user_correct', 5),
     getScript: (key) => getScript(key),
-    doImmediatelySubmit: () => getSiteTemplate().submit ?? false,
+    doImmediatelySubmit: () => getSiteTemplate().submit || false,
     getMySecretBlocks: (secret, isShort, salt) => getMySecretBlocks(secret, isShort, salt),
     encrypt: symmetricEncrypt,
     decrypt: symmetricDecrypt,
-    masterKeyHoldTime: () => getSiteTemplate().holdTime ?? 7 * 24 * 3600 * 1000,
+    masterKeyHoldTime: () => getSiteTemplate().holdTime || 7 * 24 * 3600 * 1000,
   };
 })();
