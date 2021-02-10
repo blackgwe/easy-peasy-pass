@@ -165,20 +165,27 @@
   });
 
   function onCtxMenuClick(info, tab) {
-    // console.log("info: " + JSON.stringify(info));
     if (info.menuItemId === 'user') {
       tabs.executeScript(tab.id, { code: 'scriptOptions = \'set-user\';' });
     } else if (info.menuItemId === 'pwd') {
       tabs.executeScript(tab.id, { code: 'scriptOptions = \'set-pass\';' });
+    } else if (info.menuItemId === 'cp_user') {
+      tabs.executeScript(tab.id, { code: 'scriptOptions = \'cp-user\';' });
+    } else if (info.menuItemId === 'cp_pwd') {
+      tabs.executeScript(tab.id, { code: 'scriptOptions = \'cp-pass\';' });
     } /** else menuItemId === page */
     tabs.executeScript(tab.id, { file: 'lib/crypto.js' });
     tabs.executeScript(tab.id, { file: 'lib/commit-action.js' });
   }
 
-  chrome.contextMenus.create({ contexts: ['editable'], title: 'Fill User', id: 'user' });
-  chrome.contextMenus.create({ contexts: ['editable'], title: 'Fill Pass', id: 'pwd' });
-  chrome.contextMenus.create({ contexts: ['page'], title: 'Fill Credentials', id: 'page' });
-  chrome.contextMenus.onClicked.addListener(onCtxMenuClick);
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({ contexts: ['editable'], title: 'Fill User', id: 'user' });
+    chrome.contextMenus.create({ contexts: ['editable'], title: 'User2Clipboard', id: 'cp_user' });
+    chrome.contextMenus.create({ contexts: ['editable'], title: 'Fill Pass', id: 'pwd' });
+    chrome.contextMenus.create({ contexts: ['editable'], title: 'Pass2Clipboard', id: 'cp_pwd' });
+    chrome.contextMenus.create({ contexts: ['page'], title: 'Fill Credentials', id: 'page' });
+    chrome.contextMenus.onClicked.addListener(onCtxMenuClick);
+  });
 })();
 
 // chrome.storage.local.get('settings', (_) => console.log('settings', _.settings));

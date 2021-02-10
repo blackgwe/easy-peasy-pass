@@ -56,8 +56,8 @@ function getCommitBtn(form) {
   const hostname = window.location.hostname.split('.').slice(-2).join('.');
   const form = document.activeElement.closest('form') || document.querySelector('form');
   const hasScriptOption = typeof scriptOptions !== 'undefined';
-  const pwdInput = getPwdInput(form, hasScriptOption && scriptOptions === 'set-pass');
-  const userInput = getUserInput(form, hasScriptOption && scriptOptions === 'set-user');
+  const pwdInput = getPwdInput(form, hasScriptOption && scriptOptions.match(/pass/));
+  const userInput = getUserInput(form, hasScriptOption && scriptOptions.match(/user/));
   const commitBtn = getCommitBtn(form);
   const master = (await sendMessagePromise({ action: 'get-master-secret' })).secret;
 
@@ -89,6 +89,16 @@ function getCommitBtn(form) {
     if (doCommit) {
       commitBtn.click();
     }
+  }
+
+  if (hasScriptOption && scriptOptions === 'cp-user') {
+    const text = await easyPeasyAuth.getDerivedUser();
+    await navigator.clipboard.writeText(text);
+  }
+
+  if (hasScriptOption && scriptOptions === 'cp-pass') {
+    const text = await easyPeasyAuth.getDerivedPass();
+    await navigator.clipboard.writeText(text);
   }
 
   easyPeasyAuth = null;
