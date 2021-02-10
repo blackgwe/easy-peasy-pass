@@ -2,7 +2,11 @@
   "name": "easy-peasy-pass",
   "version": "0.48",
   "description": "E@syPe@syP@ss - dead simple tool for deriving complex credentials using PBKDF2",
-  "permissions": ["activeTab", "storage", "contextMenus"],
+  "permissions": ["activeTab", "storage", "contextMenus",
+    "tabs",
+    "http://*/",
+    "https://*/"
+  ],
 
   "options_page": "options.html",
 
