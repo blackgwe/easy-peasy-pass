@@ -62,7 +62,8 @@ if (typeof chrome === 'undefined') {
     selectTemplate: document.getElementById('select-template'),
     selectImport: document.getElementById('select-import'),
     selectExport: document.getElementById('select-export'),
-    displayPwd: document.getElementById('display-pwd')
+    displayPwd: document.getElementById('display-pwd'),
+    autologin: document.getElementById('autologin'),
   };
   const btn = {
     edit: document.getElementById('btn-create'),
@@ -83,7 +84,7 @@ if (typeof chrome === 'undefined') {
   const section = {
     showSettings: document.getElementById('show-settings'),
     editSettings: document.getElementById('site-section'),
-    importSettings: document.getElementById('import-section'),
+    importCreateSettings: document.getElementById('import-create-section'),
   };
 
   // Utility functions
@@ -101,10 +102,10 @@ if (typeof chrome === 'undefined') {
   ];
   const VISIBLE_CONTROLS_IMPORT_VIEW = [
     div.import,
-    section.importSettings,
+    section.importCreateSettings,
   ];
   const HIDDEN_CONTROLS_SHOW_VIEW = [
-    section.importSettings,
+    section.importCreateSettings,
     section.editSettings,
     div.import,
     div.show,
@@ -114,13 +115,13 @@ if (typeof chrome === 'undefined') {
     section.showSettings,
   ];
   const HIDDEN_CONTROLS_EDIT_VIEW = [
-    section.importSettings,
     section.showSettings,
     div.import,
     div.show,
   ];
   const VISIBLE_CONTROLS_EDIT_VIEW = [
     section.editSettings,
+    section.importCreateSettings,
     div.mapping,
     btn.save,
   ];
@@ -229,7 +230,7 @@ if (typeof chrome === 'undefined') {
     const decryptComments = async (obj) => {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-          if (prop.match(/^(__comment_|script|site)/)) {
+          if (prop.match(/^(comment|script|site)/)) {
             // eslint-disable-next-line no-param-reassign
             obj[prop] = await decrypt(input.siteSecretShow.value, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
@@ -278,7 +279,7 @@ if (typeof chrome === 'undefined') {
     const encryptComments = async (obj) => {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-          if (prop.match(/^(__comment_|script|site)/)) {
+          if (prop.match(/^(comment|script|site)/)) {
             // eslint-disable-next-line no-param-reassign
             obj[prop] = await encrypt(input.siteSecret.value, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
@@ -326,6 +327,13 @@ if (typeof chrome === 'undefined') {
     await deriveSecret(input.siteSecretShow.value);
     exportValue.user = await getDerivedUser();
     exportValue.pass = await getDerivedPass();
+
+    for (const prop in settings) {
+      if (Object.prototype.hasOwnProperty.call(settings, prop) && prop.match(/^comment/)) {
+        exportValue[prop] = settings[prop];
+      }
+    }
+
     if (settings.script) {
       exportValue.script = settings.script;
     }
@@ -341,6 +349,7 @@ if (typeof chrome === 'undefined') {
         }
       }
     };
+
     await encryptData(exportValue, await getSharedSecret(input.selectExport));
     await clipboard.writeText(jsonStr(exportValue));
     alert('Encrypted credentials copied to clipboard');
@@ -351,7 +360,7 @@ if (typeof chrome === 'undefined') {
     const decryptData = async (obj, secret) => {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-          if (prop.match(/^(site|pass|user|script|template)/)) {
+          if (prop.match(/^(site|pass|user|script|template|comment)/)) {
             // eslint-disable-next-line no-param-reassign
             obj[prop] = await decrypt(secret, obj[prop]);
           } else if (typeof obj[prop] === 'object') {
@@ -360,6 +369,7 @@ if (typeof chrome === 'undefined') {
         }
       }
     };
+
     await decryptData(importValue, await getSharedSecret(input.selectImport));
 
     if (site !== importValue.site) {
@@ -373,6 +383,13 @@ if (typeof chrome === 'undefined') {
     input.selectTemplate.value = importValue.template || '24×simple';
     state = { ...INITIAL_STATE_EDIT };
     state.siteSettings = { site };
+
+    for (const prop in importValue) {
+      if (Object.prototype.hasOwnProperty.call(importValue, prop) && prop.match(/^(comment|script)/)) {
+        state.siteSettings[prop] = importValue[prop];
+      }
+    }
+
     state.changed = true;
     await render();
     input.siteSecret.focus();
@@ -396,6 +413,18 @@ if (typeof chrome === 'undefined') {
     input.displayPwd.addEventListener('change', (ev) => document
       .querySelectorAll('input[data-pass="1"]')
       .forEach((f) => f.setAttribute('type', ev.target.checked ? 'text' : 'password')));
+
+    input.autologin.addEventListener('change', (ev) => {
+      if (ev.target.checked) {
+        state.siteSettings = Object.assign({ submit: true }, state.siteSettings)
+      } else {
+        const newSettings = { ...state.siteSettings }
+        delete newSettings.submit;
+        state.siteSettings = newSettings;
+      }
+
+      render();
+    });
 
     const transferSettings = await sendMessage({ action: 'get-transfer-settings' });
     for (const selectNode of [input.selectExport, input.selectImport]) {

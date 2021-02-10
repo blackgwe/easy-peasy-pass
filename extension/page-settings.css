@@ -89,7 +89,7 @@ label, legend, fieldset {
     display: none;
 }
 
-label[for="display-pwd"] {
+label[for="display-pwd"],label[for="autologin"] {
     display: inline;
 }
 
