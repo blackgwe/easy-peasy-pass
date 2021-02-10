@@ -28,15 +28,16 @@
             <textarea rows="20" cols="120" id="import-text">
 [
     {
-        "site": "t12mdsnsg2dxgtq5lg2zKjE+KC6xJh+D",
-        "user": "q128cey2gnHOkx0V9pmVqRCFZayqVzGy66tthQ==",
-        "pass": "kkGc5y5uhHDfyS49bPmKBjh+oVt5sKSAwttsBQL7XtEr6w=="
+        "site": "ovln21a7dOjfZD7qQYcH6vlAInrR9d0G",
+        "user": "vvl93HPhdf6mDpLv5atZSquRqWrLhDcthdm+XQ==",
+        "pass": "h+VdSrE5c/+3VKHHnBLH7z2VttL0k6GbGCyizwFLsZX/uA=="
     },
     {
-        "site": "t12mdsnsg2dxgtq5lg2zKjE+KC6xJh+D",
-        "user": "slm3RcG3lHbfzxMcceTTUi8rc+nffJevJ7OTUgJorwYQ",
-        "template": "5/tYacO1gnD53A0YUf+Qel76sDsEIRRNWjyZ2Mx5vQ==",
-        "script": "vlSqd9jqwGrf0RISP/2SRCZ+oW/3aftUmNLXoXHadeOORU2B"
+        "site": "ovln21a7dOjfZD7qQYcH6vlAInrR9d0G",
+        "user": "p/126F7gY/m3UpzmgQ+euypyLLI266wtjfFtQyJN/M0O",
+        "pass": "r8Jtnl36f8WbRNhFWk3SiiWB3KS1I8Hoe/r0FuS9O0MNY4nsOrJZUE0o",
+        "comment": "vvl93Fv8fvq3SYL/w7rhVWs7UowsU/MWmSoX",
+        "script": "q/Br2ke9N+W3TJ3ozxbfrSOVnE+9QmXvlBO3XnlLGVLDLv1W"
     }
 ]</textarea>
 
@@ -68,7 +69,7 @@
     async function decryptData(obj, secret) {
         for (let prop in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-                if (prop.match(/^(site|pass|user|script)/)) {
+                if (prop.match(/^(site|pass|user|script|comment)/)) {
                     obj[prop] = await easyPeasyAuth.decrypt(secret, obj[prop]);
                 } else if (typeof obj[prop] === 'object') {
                     await decryptData(obj[prop], secret);
@@ -80,13 +81,19 @@
     document.getElementById('decrypt').addEventListener('click', async () => {
         const
             start = new Date(),
-            secret = document.getElementById('master-user').value + document.getElementById('master-secret').value,
+            secret = document.getElementById('master-secret').value,
+            user = document.getElementById('master-user').value,
             importValue = JSON.parse(document.getElementById('import-text').value);
 
-        await easyPeasyAuth.setSecret(secret)
-        const derivedPass = await easyPeasyAuth.getDerivedPass();
 
-        await decryptData(importValue, await easyPeasyAuth.getMySecretBlocks(derivedPass, false, 'SHARED_SECRET'));
+        await easyPeasyAuth.setSecret(secret);
+        const cryptoKeyMaster = await easyPeasyAuth.getDerivedPass();
+
+        await decryptData(
+          importValue,
+          await easyPeasyAuth.getMySecretBlocks(cryptoKeyMaster + user, false, 'SHARED_SECRET')
+        );
+
         document.getElementById('plain').value = JSON.stringify(importValue, null, 4);
 
         alert(`duration: ${new Date() - start}ms`);
