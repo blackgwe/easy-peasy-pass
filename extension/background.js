@@ -43,7 +43,10 @@
         break;
 
       case 'get-transfer-settings':
-        sendResponse(settings.transfer || []);
+        if (settings && settings.transfer) {
+          sendResponse(settings.transfer || []);
+        }
+        sendResponse([]);
         break;
 
       case 'set-transfer-settings':
