@@ -60,6 +60,7 @@ function getCommitBtn(form) {
   const userInput = getUserInput(form, hasScriptOption && scriptOptions.match(/user/));
   const commitBtn = getCommitBtn(form);
   const master = (await sendMessagePromise({ action: 'get-master-secret' })).secret;
+  const inputEvents = ['keydown', 'keypress', 'keyup', 'input', 'change'];
 
   if (master === null) {
     alert('Please give the master password first!');
@@ -72,10 +73,16 @@ function getCommitBtn(form) {
 
   if (!hasScriptOption || scriptOptions === 'set-user') {
     userInput.value = userInput ? await easyPeasyAuth.getDerivedUser() : '';
+    for (const event of inputEvents) {
+      userInput.dispatchEvent(new Event(event, { bubbles: true }));
+    }
   }
 
   if (!hasScriptOption || scriptOptions === 'set-pass') {
     pwdInput.value = pwdInput ? await easyPeasyAuth.getDerivedPass() : '';
+    for (const event of inputEvents) {
+      userInput.dispatchEvent(new Event(event, { bubbles: true }));
+    }
 
     const js = await easyPeasyAuth.getScript(secret);
     const doCommit = easyPeasyAuth.doImmediatelySubmit() !== false;
